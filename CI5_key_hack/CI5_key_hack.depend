@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1533746645 source:c:\users\user\dropbox\c++projects\ci5_key_hack\main.cpp
+	<iostream>
+	<windows.h>
+

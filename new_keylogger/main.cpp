@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <string.h>
 
-using namespace std;
+using namespace std;        //asta e in mare parte cod generic de keylogger de pe net, putin modificat ca sa va puteti juca cu inputurile
 KBDLLHOOKSTRUCT kb;
 HHOOK hKeyHook;
 

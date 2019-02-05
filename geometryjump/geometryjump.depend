@@ -1,0 +1,31 @@
+# depslib dependency file v1.0
+1549313132 source:c:\users\rolll\dropbox\c++projects\geometryjump\main.cpp
+	<windows.h>
+	<gl/gl.h>
+	<iostream>
+	"obstacle.h"
+	<time.h>
+	<stdlib.h>
+	<string.h>
+
+1549312166 c:\users\rolll\dropbox\c++projects\geometryjump\obstacle.h
+	<GL/gl.h>
+
+1549313151 source:c:\users\rolll\dropbox\c++projects\geometryjump\obstacle.cpp
+	"obstacle.h"
+	<math.h>
+	<iostream>
+
+1547463283 source:c:\users\user\dropbox\c++projects\geometryjump\obstacle.cpp
+	"obstacle.h"
+
+1547462991 c:\users\user\dropbox\c++projects\geometryjump\obstacle.h
+	<GL/gl.h>
+
+1547463290 source:c:\users\user\dropbox\c++projects\geometryjump\main.cpp
+	<windows.h>
+	<gl/gl.h>
+	<iostream>
+	"obstacle.h"
+	<time.h>
+

@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1559143324 source:g:\dropbox\c++projects\fituica reloaded\main.cpp
+	<windows.h>
+	<windowsx.h>
+	<gl/gl.h>
+	<iostream>
+

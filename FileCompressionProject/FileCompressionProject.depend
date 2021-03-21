@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1616359324 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
+	<iostream>
+	"trie.h"
+
+1616363152 d:\dropbox\c++projects\filecompressionproject\trie.h
+	<string.h>
+
+1616363222 source:d:\dropbox\c++projects\filecompressionproject\trie.cpp
+	"trie.h"
+	<iostream>
+

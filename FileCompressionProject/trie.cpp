@@ -5,7 +5,12 @@ using namespace std;
 
 trie::trie()
 {
+    //create root
     T = new tNode();
+
+    //init params
+    nrStoredWords = 0;
+    last_start = T;
 }
 
 trie::~trie()
@@ -21,7 +26,7 @@ void trie::insert_inner(tNode* x, const unsigned char* str, int sz)
 
     if(sz == 0) //end of the word, mark
     {
-        x->isWord = 1;
+        x->isWord = nrStoredWords++;
         return;
     }
 
@@ -51,13 +56,13 @@ void trie::print_inner(tNode* x)
         throw runtime_error("Fatal error! Printing null node!\n");
 
     if(x->isWord)
-        cout<<ans<<"\n";
+        cout<<ans<<" - "<<x->isWord<<"\n";
 
     for(int i = 0; i < 256; ++i)
     {
         if(x->sons[i])
         {
-            ans.push_back(i);
+            ans.push_back((char)i);
             print_inner(x->sons[i]);
             ans.pop_back();
         }
@@ -67,14 +72,11 @@ void trie::print_inner(tNode* x)
 int trie::find_inner(tNode* x, const unsigned char* str, int sz)
 {
     if(!x)
-        return -1;
+        return 0;
 
     if(sz == 0)
     {
-        if(x->isWord)
-            return 1;
-        else
-            return -1;
+        return x->isWord;
     }
     //cout<<"[DEBUG]"<<(unsigned int)(*str)<<"\n";
     return find_inner(x->sons[(unsigned int)(*str)], str + 1, sz - 1);
@@ -93,6 +95,52 @@ int trie::find(const char * str, int sz)
         return find_inner(T, (const unsigned char*)str, sz);
     else
         return -1;
+}
+
+int trie::find_incremental(const char next)
+{
+    unsigned char c = (unsigned char) next;
+    if(last_start->sons[c])
+    {
+        last_start = last_start->sons[c];
+        if(last_start->isWord)
+            return last_start->isWord;
+        else
+        {
+            last_start = T;
+            return -1;
+        }
+    }
+
+    else
+    {
+        last_start = T;
+        return -1;
+    }
+}
+
+int trie::find_incremental_and_add(const char next)
+{
+    unsigned char c = (unsigned char) next;
+    if(last_start->sons[c])
+    {
+        last_start = last_start->sons[c];
+        if(last_start->isWord)
+            return last_start->isWord;
+        else
+        {
+            last_start = T;
+            return -1;
+        }
+    }
+
+    else
+    {
+        last_start->sons[c] = new tNode();
+        last_start->sons[c]->isWord = nrStoredWords++;
+        last_start = T;
+        return -1;
+    }
 }
 
 void trie::print()

@@ -11,7 +11,7 @@ public:
 
     tNode()
     {
-        isWord = 0;
+        isWord = -1;
         memset(sons, 0, 256 * sizeof(tNode*));
     }
 };
@@ -21,6 +21,7 @@ class trie
     //state variables
     int nrStoredWords;
     tNode* T;
+    tNode* last_start;
 
     //specific functions
     void insert_inner(tNode*, const unsigned char*, int);
@@ -41,6 +42,8 @@ public:
 
     void insert(const char *, int);
     int find(const char *, int);
+    int find_incremental(const char);
+    int find_incremental_and_add(const char);
     void print();
 };
 

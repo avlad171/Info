@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "trie.h"
+#include "lzw.h"
 
 using namespace std;
 
@@ -21,58 +21,41 @@ int main(int argc, char * argv[])
         return -1;
     }
 
-    //LZW init
-    trie T;
+    ofstream compStage1 ("lzw.dat");
 
-    //step 1: insert every single character
-    for (int i = 0; i < 256; ++i)
-    {
-        //cout<<"Inserting "<<i<<"\n";
-        T.insert((const char*)&i, 1);
-    }
-    cout<<"[DEBUG] Single character inserion done!\n";
+    lzw LZW(12);
 
-    //read first char from the file and initialize position in trie
+    char * inbuf = new char [1024];
+    char * outbuf = new char [1536];
 
-    char P;
-    raw.read(&P, 1);
-    if(raw.eof())
-    {
-        cout<<"File is only 1 byte long! TBA\n";
-        return 0;
-    }
-    cout<<"[DEBUG] Read "<<P<<"\n";
-    int last_code = T.find_incremental(P);
-    cout<<"First find incremental: "<<last_code;
-    cout<<endl;
-
-    //process the file
     while(true)
     {
-        raw.read(&P, 1);
+        raw.read(inbuf, 1024);
+        int readBytes = raw.gcount();
+
+        int writeBytes = 0;
 
         if(raw.eof())
         {
-            cout<<"Last code before EOF: "<<last_code<<"\n";
+            LZW.compressFinal(inbuf, outbuf, readBytes, writeBytes);
+            cout<<"The output is "<<writeBytes<<" bytes in size\n";
+            cout<<"Binary output: ";
+            cout.write(outbuf, writeBytes);
+            compStage1.write(outbuf, writeBytes);
+
+            cout<<endl;
             break;
         }
 
-        cout<<"[DEBUG] Read "<<P<<"\n";
-        //if dictionary is at max size
-        //TODO
-
-        //else try to also append
-        int code = T.find_incremental_and_add(P);
-        if(code != -1)   //found the word, try with more chars
+        else
         {
-            last_code = code;
-        }
-        else    //did not find the word, output its code
-        {
-            cout<<"Outputting code "<<last_code<<"\n";
-            last_code = T.find_incremental(P);
+            cout<<"Not eof!\n";
+            LZW.compress(inbuf, outbuf, readBytes, writeBytes);
         }
     }
-    T.print();
+
+
+    delete [] inbuf;
+    delete [] outbuf;
     return 0;
 }

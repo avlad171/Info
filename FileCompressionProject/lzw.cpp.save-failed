@@ -1,7 +1,6 @@
 #include "lzw.h"
 #include <iostream>
 
-#include <vector>
 using namespace std;
 
 void lzw::init()
@@ -34,8 +33,6 @@ lzw::lzw(int sz)
 
     last_code = -1;
 
-
-
     //create trie and insert every ASCII char
     T = new trie();
     for (int i = 0; i < 256; ++i)
@@ -43,7 +40,6 @@ lzw::lzw(int sz)
         //cout<<"Inserting "<<i<<"\n";
         T->insert((const char*)&i, 1);
     }
-    //TODO move stored words here
 
     //create hashmap and insert every ascii char
     for (int i = 0; i < 256; ++i)
@@ -51,7 +47,6 @@ lzw::lzw(int sz)
         //H[i] = "";
         H[i] = (unsigned char)i;
     }
-    hStoredWords = 256;
 }
 
 lzw::~lzw()
@@ -177,74 +172,26 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
 
 int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
 {
-    //vector <int> test = {84, 65, 256, 71, 257, 67, 84, 256, 257, 264};
-    //vector <int> test = {87, 89, 83, 42, 256, 71, 256, 258, 262, 262, 71};
     inputsize += inputSize;
 
-    carry = 0;
-    nr_carry_bits = 0;
-
-    cout<<hex;
-
-    for(int i = 0; i < inputSize;)
+    for(int i = 0; i < inputSize; ++i)
     {
         int nw = 0; //next input code
 
-        //determine how many bytes to read
-        int full_bytes = (codesize - nr_carry_bits) % 8 ? (codesize - nr_carry_bits + 8) / 8 : (codesize - nr_carry_bits) / 8;
-
-        cout<<"["<<i<<"] Reading from stream "<<full_bytes<<" bytes. Leftover "<<nr_carry_bits<<" bits\n";
-
-        //initialize code with what's left
-        nw = carry;
-        cout<<"["<<i<<"] Initial code is 0x"<<nw<<"\n";
-
-        //read from raw data stream
-        memcpy(&carry, src + i, full_bytes);
-        i += full_bytes;
-
-        //complete the code with the new data
-        nw = nw | (carry << nr_carry_bits);
-
-        //truncate code
-        nw &= ((1<<codesize) - 1);
-        cout<<"["<<i<<"] Code is 0x"<<nw<<"\n";
-
-        //there are 8*full_bytes - (codesize - nr_carry_bits) bits left in the carry
-        carry = carry >> (codesize - nr_carry_bits);
-        cout<<"["<<i<<"] Carry is 0x"<<carry<<"\n";
-
-        //compute the number of leftover bits
-        nr_carry_bits = (codesize - nr_carry_bits + 8) % 8;
+        //TODO fetch input code
 
         if(H.find(nw) != H.end())    //the code is indexed
         {
-            cout<<H[nw].data()<<"\n";
+            cout<<H[nw]->getData()<<"\n";
             //
-            unsigned char c = H[nw][0];
-
-            if(old.size())
-            {
-                //insert new string into the dictionary
-                H[hStoredWords++] = old + c;
-            }
-
-            old = H[nw];
         }
 
         else
         {
-            unsigned char c = old[0];
-            old = old + c;
-            cout<<old.data()<<"\n";
 
-            H[hStoredWords++] = old;
         }
 
     }
 
-    //compute final output size
-    outputSize /= codesize;
-    outputSize *= 8;
     return 1;
 }

@@ -6,71 +6,10 @@
 #include <unordered_map>
 #include <algorithm>
 
-class record
-{
-    unsigned char* data;
-    int sz;
-
-public:
-    //ctors
-    record(const char* src, int sz)
-    {
-        this->sz = sz;
-        data = new unsigned char [sz + 1];
-        memcpy(data, src, sz);
-    };
-
-    record()
-    {
-        this->sz = 0;
-        data = nullptr;
-    }
-
-    record(const record & other)
-    {
-        sz = other.sz;
-        data = new char[sz + 1];
-        memcpy(data, other.data, sz);
-    };
-
-    //dtor
-    ~record()
-    {
-        if(data)
-            delete [] data;
-    };
-
-    //getters
-    unsigned char * getData()
-    {
-        return data;
-    };
-
-    int size()
-    {
-        return sz;
-    };
-
-    //swap
-    friend void swap(record& first, record& second)
-    {
-        std::swap(first.sz, second.sz);
-        std::swap(first.data, second.data);
-    }
-
-    //operators
-    record& operator = (record other)
-    {
-        swap(*this, other);
-        return *this;
-    }
-
-    friend std::ostream& operator << (std::ostream& os, const record & key)
-    {
-        os.write(key.data, key.sz);
-        return os;
-    };
-};
+//namespace lzw
+//{
+    typedef std::basic_string<unsigned char> bstring;
+//}
 
 class lzw
 {
@@ -83,16 +22,20 @@ class lzw
     uint64_t inputsize;
     uint64_t outputsize;
 
-    //internals
+    //internals - compressing
     int nr_carry_bits;
     uint64_t carry;
     int last_code;
+
+    //internals - decompressing
+    int hStoredWords;
+    bstring old;
 
     //trie dictionary, used for compression
     trie* T;
 
     //hashmap dictionary, used for decompression
-    std::unordered_map<int, record*> H;
+    std::unordered_map<int, bstring> H;
 
 public:
     lzw(int sz);

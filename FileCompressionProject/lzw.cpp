@@ -40,10 +40,17 @@ lzw::lzw(int sz)
         //cout<<"Inserting "<<i<<"\n";
         T->insert((const char*)&i, 1);
     }
+
+    //create hashmap and insert every ascii char
+    for (int i = 0; i < 256; ++i)
+    {
+        H[i] = new record((const char*)&i, 1);
+    }
 }
 
 lzw::~lzw()
 {
+    H.clear();
     delete T;
     //delete [] buf;
 }
@@ -57,7 +64,7 @@ int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
         char P = src[i];
         cout<<"[DEBUG] Next "<<P<<"\n";
 
-        int code = T->find_incremental_and_add(P);
+        int code = T->find_incremental_and_add(P);  //TODO add max dictionary size
         if(code != -1)   //found the word, try with more chars
         {
             last_code = code;
@@ -121,7 +128,7 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
             char P = src[i];
             cout<<"Next "<<P<<"\n";
 
-            int code = T->find_incremental_and_add(P);
+            int code = T->find_incremental_and_add(P); //TODO add max dictionary size
             if(code != -1)   //found the word, try with more chars
             {
                 last_code = code;
@@ -157,6 +164,32 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
                 last_code = T->find_incremental(P);
             }
         }
+    }
+
+    return 1;
+}
+
+int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
+{
+    inputsize += inputSize;
+
+    for(int i = 0; i < inputSize; ++i)
+    {
+        int nw = 0; //next input code
+
+        //TODO fetch input code
+
+        if(H.find(nw) != H.end())    //the code is indexed
+        {
+            cout<<H[nw]->getData()<<"\n";
+            //
+        }
+
+        else
+        {
+
+        }
+
     }
 
     return 1;

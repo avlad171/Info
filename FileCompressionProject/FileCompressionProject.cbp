@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gnu_gcc_compiler_64" />
-				<Option parameters="raw.txt" />
+				<Option parameters="-c raw.txt" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -33,6 +33,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="lzw.cpp" />
+		<Unit filename="lzw.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="trie.cpp" />
 		<Unit filename="trie.h" />

@@ -9,15 +9,18 @@ int main(int argc, char * argv[])
 {
     if(argc < 2)
     {
-        cout<<"Usage: LZW <file to compress>\n";
+        cout<<"Usage: LZW <mode> <inputfile> <outputfile>\n";
+        cout<<"mode:\n";
+        cout<<"\t\t -c to compress\n";
+        cout<<"\t\t -d to decompress\n";
         return 0;
     }
 
     //open file and check for errors
-    ifstream raw (argv[1], ios::in | ios::binary);
+    ifstream raw (argv[2], ios::in | ios::binary);
     if(raw.fail())
     {
-        cout<<"Unable to open file!\n";
+        cout<<"Unable to open input file!\n";
         return -1;
     }
 

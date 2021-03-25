@@ -50,6 +50,9 @@ public:
     int decompress(char * src, char * dst, int inputSize, int & outputSize);
     int decompressFinal(char * src, char * dst, int inputSize, int & outputSize);
 
+    //reset
+    void reset();
+
     //getters
     getCodeSize()
     {

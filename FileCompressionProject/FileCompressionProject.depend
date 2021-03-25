@@ -7,7 +7,7 @@
 1616678132 d:\dropbox\c++projects\filecompressionproject\trie.h
 	<string.h>
 
-1616483418 source:d:\dropbox\c++projects\filecompressionproject\trie.cpp
+1616678206 source:d:\dropbox\c++projects\filecompressionproject\trie.cpp
 	"trie.h"
 	<iostream>
 
@@ -16,7 +16,7 @@
 	<iostream>
 	<vector>
 
-1616677492 d:\dropbox\c++projects\filecompressionproject\lzw.h
+1616678286 d:\dropbox\c++projects\filecompressionproject\lzw.h
 	"trie.h"
 	<inttypes.h>
 	<unordered_map>

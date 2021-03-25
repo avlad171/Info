@@ -57,6 +57,8 @@ int main(int argc, char * argv[])
         }
     }
 
+    LZW.reset();
+
     int plm;
     LZW.decompress(outbuf, nullptr, 11, plm);
 

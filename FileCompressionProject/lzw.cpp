@@ -61,6 +61,36 @@ lzw::~lzw()
     //delete [] buf;
 }
 
+void lzw::reset()
+{
+    //delete old data
+    H.clear();
+    delete T;
+
+    //clear inner params
+    carry = 0;
+    nr_carry_bits = 0;
+    last_code = 0;
+    old.clear();
+
+    //create new
+    T = new trie();
+    for (int i = 0; i < 256; ++i)
+    {
+        //cout<<"Inserting "<<i<<"\n";
+        T->insert((const char*)&i, 1);
+    }
+    tStoredWords = 256;
+
+    //create hashmap and insert every ascii char
+    for (int i = 0; i < 256; ++i)
+    {
+        //H[i] = "";
+        H[i] = (unsigned char)i;
+    }
+    hStoredWords = 256;
+}
+
 int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
 {
     inputsize += inputSize;
@@ -196,9 +226,6 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
 int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
 {
     inputsize += inputSize;
-
-    carry = 0;
-    nr_carry_bits = 0;
 
     cout<<hex;
 

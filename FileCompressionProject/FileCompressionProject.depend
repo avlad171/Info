@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1616622862 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
+1616702870 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
 	<iostream>
 	<fstream>
 	"lzw.h"
@@ -7,16 +7,16 @@
 1616678132 d:\dropbox\c++projects\filecompressionproject\trie.h
 	<string.h>
 
-1616678206 source:d:\dropbox\c++projects\filecompressionproject\trie.cpp
+1616678648 source:d:\dropbox\c++projects\filecompressionproject\trie.cpp
 	"trie.h"
 	<iostream>
 
-1616678016 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
+1616703105 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
 	"lzw.h"
 	<iostream>
 	<vector>
 
-1616678286 d:\dropbox\c++projects\filecompressionproject\lzw.h
+1616678520 d:\dropbox\c++projects\filecompressionproject\lzw.h
 	"trie.h"
 	<inttypes.h>
 	<unordered_map>

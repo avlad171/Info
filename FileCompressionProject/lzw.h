@@ -58,6 +58,9 @@ public:
     {
         return codesize;
     };
+
+    //print stats
+    void printInfo();
 };
 
 #endif // LZW_H_INCLUDED

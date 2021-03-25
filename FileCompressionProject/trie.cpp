@@ -18,7 +18,7 @@ trie::~trie()
     delete_inner(T);
     T = nullptr;
     last_start = nullptr;
-    cout<<"Trie deletion done\n";
+    //cout<<"Trie deletion done\n";
 }
 
 void trie::delete_inner(tNode* x)

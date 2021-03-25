@@ -72,6 +72,8 @@ void lzw::reset()
     nr_carry_bits = 0;
     last_code = 0;
     old.clear();
+    inputsize = 0;
+    outputsize = 0;
 
     //create new
     T = new trie();
@@ -225,8 +227,13 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
 
 int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
 {
+    //stats
     inputsize += inputSize;
 
+    //buf
+    bstring buf;
+
+    //debug
     cout<<hex;
 
     for(int i = 0; i < inputSize;)
@@ -236,6 +243,14 @@ int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
         //determine how many bytes to read
         int full_bytes = (codesize - nr_carry_bits) % 8 ? (codesize - nr_carry_bits + 8) / 8 : (codesize - nr_carry_bits) / 8;
 
+        //check if in the input stream are enough bytes
+        if(inputSize - i < full_bytes)
+        {
+            //if not we can't fetch another code so end decompression and return the number of bytes processed
+            memcpy(dst, buf.data(), outputSize);
+            outputsize += outputSize;
+            return i;
+        }
         cout<<"["<<i<<"] Reading from stream "<<full_bytes<<" bytes. Leftover "<<nr_carry_bits<<" bits\n";
 
         //initialize code with what's left
@@ -262,8 +277,11 @@ int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
 
         if(H.find(nw) != H.end())    //the code is indexed
         {
+            //"print" code
             cout<<H[nw].data()<<"\n";
-            //
+            buf += H[nw];
+            outputSize += H[nw].size();
+
             unsigned char c = H[nw][0];
 
             if(old.size())
@@ -277,14 +295,27 @@ int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
 
         else
         {
+            cout<<"Code 0x"<<nw<<" not found!\n";
             unsigned char c = old[0];
             old = old + c;
             cout<<old.data()<<"\n";
+            buf += old;
+            outputSize += H[nw].size();
 
             H[hStoredWords++] = old;
         }
 
     }
 
-    return 1;
+    //write to output
+    memcpy(dst, buf.data(), outputSize);
+    outputsize += outputSize;
+
+    return inputSize;
+}
+
+void lzw::printInfo()
+{
+    cout<<"Read input bytes: "<<inputsize<<"\n";
+    cout<<"Written output bytes "<<outputsize<<"\n";
 }

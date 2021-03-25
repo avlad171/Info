@@ -97,6 +97,7 @@ int main(int argc, char * argv[])
             readBytes = 1024 - processed;
 
             decompStage1.write((const char*)outbuf.data(), outbuf.size());
+            outbuf.clear();
 
             if(raw.eof())
                 break;

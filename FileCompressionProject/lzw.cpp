@@ -225,13 +225,13 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
     return 1;
 }
 
-int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
+int lzw::decompress(char * src, int inputSize, bstring & buf)
 {
     //stats
     inputsize += inputSize;
 
     //buf
-    bstring buf;
+    //bstring buf;
 
     //debug
     cout<<hex;
@@ -247,8 +247,8 @@ int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
         if(inputSize - i < full_bytes)
         {
             //if not we can't fetch another code so end decompression and return the number of bytes processed
-            memcpy(dst, buf.data(), outputSize);
-            outputsize += outputSize;
+            //memcpy(dst, buf.data(), outputSize);
+            //outputsize += outputSize;
             return i;
         }
         cout<<"["<<i<<"] Reading from stream "<<full_bytes<<" bytes. Leftover "<<nr_carry_bits<<" bits\n";
@@ -280,7 +280,7 @@ int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
             //"print" code
             cout<<H[nw].data()<<"\n";
             buf += H[nw];
-            outputSize += H[nw].size();
+            outputsize += H[nw].size();
 
             unsigned char c = H[nw][0];
 
@@ -300,7 +300,7 @@ int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
             old = old + c;
             cout<<old.data()<<"\n";
             buf += old;
-            outputSize += H[nw].size();
+            outputsize += H[nw].size();
 
             H[hStoredWords++] = old;
         }
@@ -308,8 +308,8 @@ int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
     }
 
     //write to output
-    memcpy(dst, buf.data(), outputSize);
-    outputsize += outputSize;
+    //memcpy(dst, buf.data(), outputSize);
+    //outputsize += outputSize;
 
     return inputSize;
 }

@@ -47,8 +47,8 @@ public:
     //core
     int compress(char * src, char * dst, int inputSize, int & outputSize);
     int compressFinal(char * src, char * dst, int inputSize, int & outputSize);
-    int decompress(char * src, char * dst, int inputSize, int & outputSize);
-    int decompressFinal(char * src, char * dst, int inputSize, int & outputSize);
+    int decompress(char * src, int inputSize, bstring & buf);
+    //int decompressFinal(char * src, char * dst, int inputSize, int & outputSize);
 
     //reset
     void reset();

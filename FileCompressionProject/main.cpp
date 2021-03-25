@@ -78,26 +78,25 @@ int main(int argc, char * argv[])
         ofstream decompStage1("decomp.txt", ios::out | ios::binary);
 
         char * inbuf = new char [1024];
-        char * outbuf = new char [2048];
+        bstring outbuf;
 
         int readBytes = 0;
+
 
         while(true)
         {
             raw.read(inbuf + readBytes, 1024 - readBytes);
             readBytes += raw.gcount();
 
-            int writeBytes = 0;
-
-            int processed = LZW.decompress(inbuf, outbuf, readBytes, writeBytes);
+            int processed = LZW.decompress(inbuf, readBytes, outbuf);
             cout<<dec;
-            cout.write(outbuf, writeBytes);
+            cout.write((const char*)outbuf.data(), outbuf.size());
             cout<<"\n";
 
             memcpy(inbuf, inbuf + processed, 1024 - processed);
             readBytes = 1024 - processed;
 
-            decompStage1.write(outbuf, writeBytes);
+            decompStage1.write((const char*)outbuf.data(), outbuf.size());
 
             if(raw.eof())
                 break;
@@ -106,6 +105,7 @@ int main(int argc, char * argv[])
         LZW.printInfo();
         LZW.reset();
 
+        delete [] inbuf;
         decompStage1.close();
     }
 

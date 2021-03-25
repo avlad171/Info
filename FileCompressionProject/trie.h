@@ -28,6 +28,9 @@ class trie
     void print_inner(tNode*);
     int find_inner(tNode*, const unsigned char *, int);
 
+    //deletion helper
+    void delete_inner(tNode*);
+
 public:
     //ctor
     trie();

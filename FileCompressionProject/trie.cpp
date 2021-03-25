@@ -15,7 +15,21 @@ trie::trie()
 
 trie::~trie()
 {
-    cout<<"TBA!\n";
+    delete_inner(T);
+    T = nullptr;
+    last_start = nullptr;
+    cout<<"Trie deletion done\n";
+}
+
+void trie::delete_inner(tNode* x)
+{
+    if(x == nullptr)
+        return;
+
+    for(int i = 0; i < 256; ++i)
+        delete_inner(x->sons[i]);
+
+    delete x;
 }
 
 void trie::insert_inner(tNode* x, const unsigned char* str, int sz)

@@ -73,7 +73,10 @@ int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
         int code;
         //if dictionary is not full
         if(tStoredWords < (1 << codesize))
+        {
             code = T->find_incremental_and_add(P);
+            tStoredWords++;
+        }
         else    //if it is full don't add
             code = T->find_incremental(P);
 
@@ -143,7 +146,10 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
             int code;
             //if dictionary is not full
             if(tStoredWords < (1 << codesize))
+            {
                 code = T->find_incremental_and_add(P);
+                tStoredWords++;
+            }
             else    //if it is full don't add
                 code = T->find_incremental(P);
 

@@ -4,14 +4,14 @@
 	<fstream>
 	"lzw.h"
 
-1616481635 d:\dropbox\c++projects\filecompressionproject\trie.h
+1616678132 d:\dropbox\c++projects\filecompressionproject\trie.h
 	<string.h>
 
 1616483418 source:d:\dropbox\c++projects\filecompressionproject\trie.cpp
 	"trie.h"
 	<iostream>
 
-1616677713 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
+1616678016 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
 	"lzw.h"
 	<iostream>
 	<vector>

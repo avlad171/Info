@@ -43,7 +43,7 @@ lzw::lzw(int sz)
         //cout<<"Inserting "<<i<<"\n";
         T->insert((const char*)&i, 1);
     }
-    //TODO move stored words here
+    tStoredWords = 256;
 
     //create hashmap and insert every ascii char
     for (int i = 0; i < 256; ++i)
@@ -70,7 +70,13 @@ int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
         char P = src[i];
         cout<<"[DEBUG] Next "<<P<<"\n";
 
-        int code = T->find_incremental_and_add(P);  //TODO add max dictionary size
+        int code;
+        //if dictionary is not full
+        if(tStoredWords < (1 << codesize))
+            code = T->find_incremental_and_add(P);
+        else    //if it is full don't add
+            code = T->find_incremental(P);
+
         if(code != -1)   //found the word, try with more chars
         {
             last_code = code;
@@ -92,7 +98,7 @@ int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
             outputSize += full_bytes;
 
             //stats
-            outputsize++;
+            outputsize += full_bytes;
 
             //save the rest
             carry = carry >> (8 * full_bytes);
@@ -134,7 +140,13 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
             char P = src[i];
             cout<<"Next "<<P<<"\n";
 
-            int code = T->find_incremental_and_add(P); //TODO add max dictionary size
+            int code;
+            //if dictionary is not full
+            if(tStoredWords < (1 << codesize))
+                code = T->find_incremental_and_add(P);
+            else    //if it is full don't add
+                code = T->find_incremental(P);
+
             if(code != -1)   //found the word, try with more chars
             {
                 last_code = code;
@@ -155,13 +167,13 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
 
                 //copy the full bytes
                 memcpy(dst + outputSize, &carry, full_bytes);
-                uint64_t temp = 0;
-                memcpy(&temp, &carry, full_bytes);
+                //uint64_t temp = 0;    //DAFUQ does this do?
+                //memcpy(&temp, &carry, full_bytes);
 
                 outputSize += full_bytes;
 
                 //stats
-                outputsize++;
+                outputsize += full_bytes;
 
                 //save the rest
                 carry = carry >> (8 * full_bytes);
@@ -177,8 +189,6 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
 
 int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
 {
-    //vector <int> test = {84, 65, 256, 71, 257, 67, 84, 256, 257, 264};
-    //vector <int> test = {87, 89, 83, 42, 256, 71, 256, 258, 262, 262, 71};
     inputsize += inputSize;
 
     carry = 0;
@@ -243,8 +253,5 @@ int lzw::decompress(char * src, char * dst, int inputSize, int & outputSize)
 
     }
 
-    //compute final output size
-    outputSize /= codesize;
-    outputSize *= 8;
     return 1;
 }

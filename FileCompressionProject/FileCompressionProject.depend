@@ -11,12 +11,12 @@
 	"trie.h"
 	<iostream>
 
-1616623772 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
+1616677713 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
 	"lzw.h"
 	<iostream>
 	<vector>
 
-1616589746 d:\dropbox\c++projects\filecompressionproject\lzw.h
+1616677492 d:\dropbox\c++projects\filecompressionproject\lzw.h
 	"trie.h"
 	<inttypes.h>
 	<unordered_map>

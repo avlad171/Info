@@ -22,9 +22,12 @@ class lzw
     uint64_t inputsize;
     uint64_t outputsize;
 
-    //internals - compressing
+    //internals
     int nr_carry_bits;
     uint64_t carry;
+
+    //internals - compressing
+    int tStoredWords;
     int last_code;
 
     //internals - decompressing

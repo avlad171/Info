@@ -100,7 +100,7 @@ int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
     for(int i = 0; i < inputSize; ++i)
     {
         char P = src[i];
-        //cout<<"[DEBUG] Next "<<P<<"\n";
+        cout<<"[DEBUG] Next "<<P<<"\n";
 
         int code;
         //if dictionary is not full
@@ -119,7 +119,7 @@ int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
 
         else    //did not find the word, output its code
         {
-            //cout<<"Outputting code "<<last_code<<"\n";
+            cout<<"Outputting code "<<last_code<<"\n";
 
             //combine the 2 numbers
             carry = carry | ((1uLL * last_code) << nr_carry_bits);
@@ -154,7 +154,7 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
     {
         if(i == inputSize)
         {
-            //cout<<"Last code before EOF: "<<last_code<<"\n";
+            cout<<"Last code before EOF: "<<last_code<<"\n";
 
             //redundant carry clear
             carry &= ((1uLL << nr_carry_bits) - 1);
@@ -173,7 +173,7 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
         else
         {
             char P = src[i];
-            //cout<<"Next "<<P<<"\n";
+            cout<<"Next "<<P<<"\n";
 
             int code;
             //if dictionary is not full
@@ -192,7 +192,7 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
 
             else    //did not find the word, output its code
             {
-                //cout<<"Outputting code "<<last_code<<"\n";
+                cout<<"Outputting code "<<last_code<<"\n";
                 //redundant carry clear
                 carry &= ((1uLL << nr_carry_bits) - 1);
 
@@ -205,6 +205,9 @@ int lzw::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
 
                 //copy the full bytes
                 memcpy(dst + outputSize, &carry, full_bytes);
+                //uint64_t temp = 0;    //DAFUQ does this do?
+                //memcpy(&temp, &carry, full_bytes);
+
                 outputSize += full_bytes;
 
                 //stats
@@ -297,12 +300,16 @@ int lzw::decompress(char * src, int inputSize, bstring & buf)
             old = old + c;
             cout<<old.data()<<"\n";
             buf += old;
-            outputsize += old.size();
+            outputsize += H[nw].size();
 
             H[hStoredWords++] = old;
         }
 
     }
+
+    //write to output
+    //memcpy(dst, buf.data(), outputSize);
+    //outputsize += outputSize;
 
     return inputSize;
 }

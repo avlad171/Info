@@ -4,6 +4,7 @@
 #include <string>
 
 #include "lzw.h"
+#include "huffman.h"
 
 using namespace std;
 
@@ -68,6 +69,9 @@ int main(int argc, char * argv[])
     //create instance of lzw compressor
     lzw LZW(12);
 
+    //create instance of huffman compressor
+    huffmanCompressor HFC;
+
     if(!strcmp(argv[1], "-c"))  //compress
     {
         //ofstream compStage1 ("lzw.dat", ios::out | ios::binary);
@@ -85,6 +89,7 @@ int main(int argc, char * argv[])
             if(raw.eof())
             {
                 LZW.compressFinal(inbuf, outbuf, readBytes, writeBytes);
+                HFC.updateFrequency(inbuf, readBytes);
                 //cout.write(outbuf, writeBytes);
                 temp.write(outbuf, writeBytes);
 
@@ -95,12 +100,15 @@ int main(int argc, char * argv[])
             else
             {
                 LZW.compress(inbuf, outbuf, readBytes, writeBytes);
+                HFC.updateFrequency(inbuf, readBytes);
                 //cout.write(outbuf, writeBytes);
                 temp.write(outbuf, writeBytes);
             }
         }
         LZW.printInfo();
         LZW.reset();
+
+        HFC.buildTree();
 
         delete [] inbuf;
         delete [] outbuf;

@@ -8,7 +8,8 @@
 struct hNode
 {
     int sum = 0;
-    int pos = -1;
+    int16_t pos = -1;
+    unsigned char ch = 0;
     hNode * st = nullptr;
     hNode * dr = nullptr;
 };
@@ -45,16 +46,19 @@ class huffmanCompressor
     int actual_char_number;
 
     //2 queues and their pointers
-    hNode Q1 [258];
-    hNode Q2 [258];
+    hNode Q1 [520];
+    hNode *Q2 = Q1 + 260;
     int q1;
     int q2;
 
     //temp and inf (sentinel) node
     hNode temp;
     hNode inf;
+    hNode * root;
 
     void DF(hNode*, int64_t, int16_t);
+    void insert_code(hNode*, int64_t, int16_t, unsigned char);
+    unsigned char find_reverse(hNode*, int64_t, int16_t);
 
 public:
     //ctor
@@ -70,6 +74,8 @@ public:
     int compressFinal(char * src, char * dst, int inputSize, int & outputSize);
     int decompress(char * src, int inputSize, std::string & dst);
 
+    int deserialize(char * src);
+    int serialize(char * dst);
 
     //getters
     int isInitialized()

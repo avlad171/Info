@@ -89,7 +89,6 @@ int main(int argc, char * argv[])
             if(raw.eof())
             {
                 LZW.compressFinal(inbuf, outbuf, readBytes, writeBytes);
-                HFC.updateFrequency(inbuf, readBytes);
                 //cout.write(outbuf, writeBytes);
                 temp.write(outbuf, writeBytes);
 
@@ -100,15 +99,12 @@ int main(int argc, char * argv[])
             else
             {
                 LZW.compress(inbuf, outbuf, readBytes, writeBytes);
-                HFC.updateFrequency(inbuf, readBytes);
                 //cout.write(outbuf, writeBytes);
                 temp.write(outbuf, writeBytes);
             }
         }
         LZW.printInfo();
         LZW.reset();
-
-        HFC.buildTree();
 
         delete [] inbuf;
         delete [] outbuf;
@@ -151,6 +147,55 @@ int main(int argc, char * argv[])
 
         delete [] inbuf;
         temp.close();
+    }
+
+    else if(!strcmp(argv[1], "-h")) //huffman debug compress
+    {
+        char * inbuf = new char [1024];
+        char * outbuf = new char [4096];
+
+        while(true)
+        {
+            raw.read(inbuf, 1024);
+            int readBytes = raw.gcount();
+
+            HFC.updateFrequency(inbuf, readBytes);
+
+            if(raw.eof())
+                break;
+
+        }
+
+        HFC.buildTree();
+
+        raw.clear();
+        raw.seekg(0);
+
+        while(true)
+        {
+            raw.read(inbuf, 1024);
+            int readBytes = raw.gcount();
+
+            int writeBytes = 0;
+
+            if(raw.eof())
+            {
+                //HFC.compressFinal(inbuf, outbuf, readBytes, writeBytes);
+                HFC.compress(inbuf, outbuf, readBytes, writeBytes);
+                temp.write(outbuf, writeBytes);
+
+                break;
+            }
+
+            else
+            {
+                HFC.compress(inbuf, outbuf, readBytes, writeBytes);
+                temp.write(outbuf, writeBytes);
+            }
+        }
+
+        delete [] inbuf;
+        delete [] outbuf;
     }
 
     else

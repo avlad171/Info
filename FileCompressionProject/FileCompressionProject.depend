@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1616711774 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
+1616711893 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
 	<iostream>
 	<fstream>
 	"lzw.h"
@@ -11,7 +11,7 @@
 	"trie.h"
 	<iostream>
 
-1616711640 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
+1616711990 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
 	"lzw.h"
 	<iostream>
 	<vector>

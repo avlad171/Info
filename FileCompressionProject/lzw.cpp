@@ -300,16 +300,12 @@ int lzw::decompress(char * src, int inputSize, bstring & buf)
             old = old + c;
             cout<<old.data()<<"\n";
             buf += old;
-            outputsize += H[nw].size();
+            outputsize += old.size();
 
             H[hStoredWords++] = old;
         }
 
     }
-
-    //write to output
-    //memcpy(dst, buf.data(), outputSize);
-    //outputsize += outputSize;
 
     return inputSize;
 }

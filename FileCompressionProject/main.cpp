@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <time.h>
+#include <string>
 
 #include "lzw.h"
 
@@ -13,13 +15,17 @@ void printUsage()
     cout<<"\t\t -d to decompress\n";
 }
 
+string to_hex_string(uint64_t x);
+
 int main(int argc, char * argv[])
 {
-    if(argc < 2)
+    if(argc < 3)
     {
         printUsage();
         return 0;
     }
+
+    srand(time(0));
 
     //open file and check for errors
     ifstream raw (argv[2], ios::in | ios::binary);
@@ -30,12 +36,41 @@ int main(int argc, char * argv[])
     }
 
 
+    //create temp file and check for errors
+    fstream temp;
+    for(int tries = 0; tries < 10; ++tries)
+    {
+        //generate random name
+        uint64_t rn = (rand() << 16) | rand();
+        string tempname = "temp" + to_hex_string(rn);
+        cout<<"Generated temp file name: "<<tempname<<"\n";
+        //try to open file
+        temp.open(tempname, ios::in | ios::out | ios::trunc | ios::binary);
 
+        if(!temp.fail())    //successful open
+            break;
+
+        if(tries == 9)
+        {
+            cout<<"Unable to create temp file\n";
+            return 0;
+        }
+    }
+
+    //create output file
+    ofstream out(argv[3], ios::out | ios::binary);
+    if(out.fail())
+    {
+        cout<<"Unable to open input file!\n";
+        return -1;
+    }
+
+    //create instance of lzw compressor
     lzw LZW(12);
 
     if(!strcmp(argv[1], "-c"))  //compress
     {
-        ofstream compStage1 ("lzw.dat", ios::out | ios::binary);
+        //ofstream compStage1 ("lzw.dat", ios::out | ios::binary);
 
         char * inbuf = new char [1024];
         char * outbuf = new char [1536];
@@ -50,8 +85,8 @@ int main(int argc, char * argv[])
             if(raw.eof())
             {
                 LZW.compressFinal(inbuf, outbuf, readBytes, writeBytes);
-                cout.write(outbuf, writeBytes);
-                compStage1.write(outbuf, writeBytes);
+                //cout.write(outbuf, writeBytes);
+                temp.write(outbuf, writeBytes);
 
                 cout<<endl;
                 break;
@@ -60,8 +95,8 @@ int main(int argc, char * argv[])
             else
             {
                 LZW.compress(inbuf, outbuf, readBytes, writeBytes);
-                cout.write(outbuf, writeBytes);
-                compStage1.write(outbuf, writeBytes);
+                //cout.write(outbuf, writeBytes);
+                temp.write(outbuf, writeBytes);
             }
         }
         LZW.printInfo();
@@ -70,12 +105,12 @@ int main(int argc, char * argv[])
         delete [] inbuf;
         delete [] outbuf;
 
-        compStage1.close();
+        temp.close();
     }
 
     else if(!strcmp(argv[1], "-d"))  //decompress
     {
-        ofstream decompStage1("decomp.txt", ios::out | ios::binary);
+        //ofstream decompStage1("decomp.txt", ios::out | ios::binary);
 
         char * inbuf = new char [1024];
         bstring outbuf;
@@ -90,13 +125,13 @@ int main(int argc, char * argv[])
 
             int processed = LZW.decompress(inbuf, readBytes, outbuf);
             cout<<dec;
-            cout.write((const char*)outbuf.data(), outbuf.size());
-            cout<<"\n";
+            //cout.write((const char*)outbuf.data(), outbuf.size());
+            //cout<<"\n";
 
             memcpy(inbuf, inbuf + processed, 1024 - processed);
             readBytes = 1024 - processed;
 
-            decompStage1.write((const char*)outbuf.data(), outbuf.size());
+            temp.write((const char*)outbuf.data(), outbuf.size());
             outbuf.clear();
 
             if(raw.eof())
@@ -107,7 +142,7 @@ int main(int argc, char * argv[])
         LZW.reset();
 
         delete [] inbuf;
-        decompStage1.close();
+        temp.close();
     }
 
     else
@@ -117,4 +152,37 @@ int main(int argc, char * argv[])
     }
 
     return 0;
+}
+
+string to_hex_string(uint64_t x)
+{
+    string ans = "0x";
+
+    bool reachedNonzeroBit = false;
+
+    for(int nibble_id = 15; nibble_id >= 0; --nibble_id)
+    {
+        uint64_t mask = 0xF;
+        mask = mask << (4 * nibble_id);
+
+        uint64_t extractedDigit = x & mask;
+        extractedDigit = extractedDigit >> (4 * nibble_id);
+
+        if(extractedDigit)
+            reachedNonzeroBit = true;
+
+        if(!reachedNonzeroBit)
+            continue;
+
+        if(extractedDigit < 10)
+            ans += (char)(extractedDigit + 48);
+
+        else
+            ans += (char)(extractedDigit + 55);
+    }
+
+    if(!reachedNonzeroBit)
+        ans += '0';
+
+    return ans;
 }

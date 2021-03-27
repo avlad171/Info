@@ -177,7 +177,10 @@ void huffmanCompressor::insert_code(hNode* x, int64_t code, int16_t code_len, un
     if(bit == 0)
     {
         if(x->st == nullptr)
+        {
             x->st = &Q1[++actual_char_number];
+            x->st->ch = -1;
+        }
 
         insert_code(x->st, code, code_len - 1, ch);
     }
@@ -185,26 +188,34 @@ void huffmanCompressor::insert_code(hNode* x, int64_t code, int16_t code_len, un
     else
     {
         if(x->dr == nullptr)
+        {
             x->dr = &Q1[++actual_char_number];
+            x->dr->ch = -1;
+        }
 
         insert_code(x->dr, code, code_len - 1, ch);
     }
 }
 
-unsigned char huffmanCompressor::find_reverse(hNode* x, int64_t code, int16_t code_len)
+int16_t huffmanCompressor::find_reverse(hNode* x, int64_t code, int max_len)
 {
     if(x == nullptr)
         throw runtime_error ("Searching code in huffman null node!\n");
 
-    if(code_len == 0)
+    if(max_len == 0)    //if we reached end of input return stored char
         return x->ch;
 
+    if(x->st == nullptr && x->dr == nullptr)    //if it's leaf node return stored char
+        return x->ch;
+
+    //else compute new code and
     bool bit = code & 1;
 
+    //search down the tree
     if(bit == 0)
-        return find_reverse(x->st, code >> 1, code_len - 1);
+        return find_reverse(x->st, code >> 1, max_len - 1);
     else
-        return find_reverse(x->dr, code >> 1, code_len - 1);
+        return find_reverse(x->dr, code >> 1, max_len - 1);
 }
 
 int64_t brev(int64_t x, int sz)
@@ -241,14 +252,14 @@ int huffmanCompressor::compress(char * src, char * dst, int inputSize, int & out
             throw runtime_error("Error: character has a code size of 0!\n");
 
         carry = carry | ((1uLL * code) << nr_carry_bits);
-        cout<<"Generated carry: 0x"<<hex<<carry<<dec<<"\n";
+        //cout<<"Generated carry: 0x"<<hex<<carry<<dec<<"\n";
 
         //determine how many full bytes there are
         int full_bytes = (codesize + nr_carry_bits) / 8;
         nr_carry_bits = (codesize + nr_carry_bits) % 8;
 
-        cout<<"Full bytes: "<<full_bytes<<"\n";
-        cout<<"Leftover bits: "<<nr_carry_bits<<"\n";
+        //cout<<"Full bytes: "<<full_bytes<<"\n";
+        //cout<<"Leftover bits: "<<nr_carry_bits<<"\n";
 
         //copy the full bytes
         memcpy(dst + outputSize, &carry, full_bytes);
@@ -265,6 +276,77 @@ int huffmanCompressor::compress(char * src, char * dst, int inputSize, int & out
     return 1;
 }
 
+int huffmanCompressor::decompress(char * src, int inputSize, string & dst)
+{
+    //read from stream
+    for(int i = 0; i < inputSize;)
+    {
+        int64_t nw = carry; //next input code is equal with what's left
+        int full_bytes = 0; //number of full bytes read
+
+        //cout<<hex<<"Carry is 0x"<<nw<<"\n";
+
+        //2 cases
+        //1: we have more bits than the longest code (31)
+        if(nr_carry_bits >= 31)
+        {
+
+        }
+        //2: we need to fetch more
+        else
+        {
+            //determine how many bytes to read
+            full_bytes = min(4, inputSize - i);
+            //cout<<"Reading extra "<<full_bytes<<" bytes\n";
+
+            //read from raw data stream
+            memcpy(&carry, src + i, full_bytes);
+            i += full_bytes;
+
+            //cout<<"Read from input 0x"<<carry<<"\n";
+
+            //complete the code with the new data
+            nw = nw | (carry << nr_carry_bits);
+        }
+
+        //cout<<"Final code 0x"<<nw<<"\n";
+
+        //search for the code
+        int16_t chi16 = find_reverse(root, nw, nr_carry_bits + full_bytes * 8);
+
+        if(chi16 == -1)
+        {
+            cout<<"Warning! Code not found!\n";
+            return i;
+        }
+
+        //extract char
+        unsigned char ch = chi16 & 0xFF;
+
+        cout<<"Decoded \""<<ch<<"\"";
+
+        //get its code length
+        int codelen = table[ch].code_len;
+        cout<<" with code length "<<codelen<<"\n";
+        nw >>= codelen;
+
+        //cout<<"Final carry 0x"<<nw<<"\n";
+
+        //save bits
+        carry = nw;
+        nr_carry_bits = nr_carry_bits + full_bytes * 8 - codelen;
+        //cout<<dec<<"Extra bits "<<nr_carry_bits<<"\n";
+
+        //stats
+        outputsize ++;
+    }
+
+    //stats
+    inputsize += inputSize;
+
+    return inputSize;
+}
+
 int huffmanCompressor::serialize(char * dst)
 {
     for(int i = 0; i < 256; ++i)
@@ -273,7 +355,7 @@ int huffmanCompressor::serialize(char * dst)
     return 256;
 }
 
-int huffmanCompressor::deserialize(char * dst)
+int huffmanCompressor::deserialize(char * src)
 {
     //reset tree
     reset();
@@ -281,7 +363,7 @@ int huffmanCompressor::deserialize(char * dst)
     //initialize table
     for(int i = 0; i < 256; ++i)
     {
-        table[i].code_len = dst[i];
+        table[i].code_len = src[i];
         table[i].frequency = 1;
         table[i].ch = (unsigned char)i;
         table[i].code = 0;
@@ -307,6 +389,10 @@ int huffmanCompressor::deserialize(char * dst)
     //make it alphabetic again
     sort(table, table + 256, alphabetic_cmp);
 
+    cout<<"Debug print\n";
+    for(int i = 0; i < 256; ++i)
+        cout<<table[i].ch<<" "<<table[i].frequency<<" "<<table[i].code_len<<" "<<table[i].code<<"\n";
+
     //insert codes in trie
     for(int i = 0; i < 256; ++i)
         insert_code(root, table[i].code, table[i].code_len, table[i].ch);
@@ -319,6 +405,7 @@ void huffmanCompressor::reset()
     memset(Q1, 0, sizeof(Q1));
 
     root = Q1;
+    root->ch = -1;
     q1 = 0;
     q2 = 0;
 

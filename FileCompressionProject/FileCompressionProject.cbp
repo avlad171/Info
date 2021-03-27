@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gnu_gcc_compiler_64" />
-				<Option parameters="-c lzw.cpp" />
+				<Option parameters="-h lzw.cpp compressed.dat" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -21,7 +21,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gnu_gcc_compiler_64" />
-				<Option parameters="-d lzw.dat" />
+				<Option parameters="-d lzw.dat decomp.txt" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -34,6 +34,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="huffman.cpp" />
+		<Unit filename="huffman.h" />
 		<Unit filename="lzw.cpp" />
 		<Unit filename="lzw.h" />
 		<Unit filename="main.cpp" />

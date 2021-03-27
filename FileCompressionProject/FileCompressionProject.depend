@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1616795768 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
+1616865363 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
 	<iostream>
 	<fstream>
 	<time.h>
@@ -25,12 +25,12 @@
 	<unordered_map>
 	<algorithm>
 
-1616795663 source:d:\dropbox\c++projects\filecompressionproject\huffman.cpp
+1616866189 source:d:\dropbox\c++projects\filecompressionproject\huffman.cpp
 	"huffman.h"
 	<iostream>
 	<string.h>
 
-1616794939 d:\dropbox\c++projects\filecompressionproject\huffman.h
+1616862448 d:\dropbox\c++projects\filecompressionproject\huffman.h
 	<inttypes.h>
 	<string>
 	<algorithm>

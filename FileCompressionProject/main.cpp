@@ -92,7 +92,6 @@ int main(int argc, char * argv[])
                 //cout.write(outbuf, writeBytes);
                 temp.write(outbuf, writeBytes);
 
-                cout<<endl;
                 break;
             }
 
@@ -154,6 +153,7 @@ int main(int argc, char * argv[])
         char * inbuf = new char [1024];
         char * outbuf = new char [4096];
 
+        //parse the input file and update freqs
         while(true)
         {
             raw.read(inbuf, 1024);
@@ -166,11 +166,20 @@ int main(int argc, char * argv[])
 
         }
 
+        //build tree
         HFC.buildTree();
 
+        //output tree in the file
+        char * header = new char [256];
+        HFC.serialize(header);
+        temp.write(header, 256);
+        delete [] header;
+
+        //reset the input file
         raw.clear();
         raw.seekg(0);
 
+        //do actual compression
         while(true)
         {
             raw.read(inbuf, 1024);
@@ -191,11 +200,48 @@ int main(int argc, char * argv[])
             {
                 HFC.compress(inbuf, outbuf, readBytes, writeBytes);
                 temp.write(outbuf, writeBytes);
+                //HFC.decompress(outbuf, )
             }
         }
 
         delete [] inbuf;
         delete [] outbuf;
+    }
+
+    else if (!strcmp(argv[1], "-hd"))   //huffman debug decompress
+    {
+        char * inbuf = new char [1024];
+
+        //read header
+        char * header = new char [256];
+        raw.read(header, 256);
+
+        if(raw.eof() || raw.gcount() < 256)
+        {
+            cout<<"Error: unable to parse huffman header!\n";
+            return -1;
+        }
+
+        //build tree from header
+        HFC.deserialize(header);
+        delete [] header;
+
+        //read and decompress data
+        while(true)
+        {
+            raw.read(inbuf, 1024);
+
+            int readBytes = raw.gcount();
+
+            string plm;
+
+            HFC.decompress(inbuf, readBytes, plm);
+
+            plm.clear();
+            if(raw.eof())
+                break;
+        }
+
     }
 
     else

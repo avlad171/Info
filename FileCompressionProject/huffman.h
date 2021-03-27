@@ -9,7 +9,8 @@ struct hNode
 {
     int sum = 0;
     int16_t pos = -1;
-    unsigned char ch = 0;
+    int16_t ch = 0;
+
     hNode * st = nullptr;
     hNode * dr = nullptr;
 };
@@ -58,7 +59,7 @@ class huffmanCompressor
 
     void DF(hNode*, int64_t, int16_t);
     void insert_code(hNode*, int64_t, int16_t, unsigned char);
-    unsigned char find_reverse(hNode*, int64_t, int16_t);
+    int16_t find_reverse(hNode*, int64_t, int);
 
 public:
     //ctor

@@ -230,6 +230,7 @@ int64_t brev(int64_t x, int sz)
 
     return ans;
 }
+
 int huffmanCompressor::compress(char * src, char * dst, int inputSize, int & outputSize)
 {
     //stats
@@ -276,37 +277,90 @@ int huffmanCompressor::compress(char * src, char * dst, int inputSize, int & out
     return 1;
 }
 
+int huffmanCompressor::compressFinal(char * src, char * dst, int inputSize, int & outputSize)
+{
+    //stats
+    inputsize += inputSize;
+
+    outputSize = 0;
+
+    for(int i = 0; i <= inputSize; ++i)
+    {
+        if(i == inputSize)
+        {
+            int sz = (nr_carry_bits + 8) / 8;
+            memcpy(dst + outputSize, &carry, sz); //pad with zero
+            outputSize += sz;
+
+            //stats
+            outputsize += sz;
+            break;
+        }
+
+        //fetch character
+        unsigned char c = (unsigned char)src[i];
+
+        int codesize = table[c].code_len;
+        int64_t code = brev(table[c].code, codesize);
+
+        cout<<"Char "<<c<<", code len "<<table[c].code_len<<", code "<<table[c].code<<"\n";
+
+        //if codesize is 0 but character appears something went wrong
+        if(codesize == 0 && table[c].frequency != 0)
+            throw runtime_error("Error: character has a code size of 0!\n");
+
+        carry = carry | ((1uLL * code) << nr_carry_bits);
+        //cout<<"Generated carry: 0x"<<hex<<carry<<dec<<"\n";
+
+        //determine how many full bytes there are
+        int full_bytes = (codesize + nr_carry_bits) / 8;
+        nr_carry_bits = (codesize + nr_carry_bits) % 8;
+
+        //cout<<"Full bytes: "<<full_bytes<<"\n";
+        //cout<<"Leftover bits: "<<nr_carry_bits<<"\n";
+
+        //copy the full bytes
+        memcpy(dst + outputSize, &carry, full_bytes);
+        outputSize += full_bytes;
+
+        //stats
+        outputsize += full_bytes;
+
+        //save the rest
+        carry = carry >> (8 * full_bytes);
+    }
+
+    cout<<"Compression done - "<<outputsize<<"\n";
+    return 1;
+}
+
 int huffmanCompressor::decompress(char * src, int inputSize, string & dst)
 {
     //read from stream
-    for(int i = 0; i < inputSize;)
+    for(int i = 0; i < inputSize || nr_carry_bits;)
     {
         int64_t nw = carry; //next input code is equal with what's left
         int full_bytes = 0; //number of full bytes read
 
         //cout<<hex<<"Carry is 0x"<<nw<<"\n";
 
-        //2 cases
-        //1: we have more bits than the longest code (31)
-        if(nr_carry_bits >= 31)
-        {
-
-        }
-        //2: we need to fetch more
-        else
+        if(nr_carry_bits < 31)  //need to fetch more bits
         {
             //determine how many bytes to read
             full_bytes = min(4, inputSize - i);
             //cout<<"Reading extra "<<full_bytes<<" bytes\n";
 
-            //read from raw data stream
-            memcpy(&carry, src + i, full_bytes);
-            i += full_bytes;
+            if(full_bytes)
+            {
+                //read from raw data stream
+                memcpy(&carry, src + i, full_bytes);
+                i += full_bytes;
 
-            //cout<<"Read from input 0x"<<carry<<"\n";
+                //cout<<"Read from input 0x"<<carry<<"\n";
 
-            //complete the code with the new data
-            nw = nw | (carry << nr_carry_bits);
+                //complete the code with the new data
+                nw = nw | (carry << nr_carry_bits);
+            }
         }
 
         //cout<<"Final code 0x"<<nw<<"\n";
@@ -323,11 +377,14 @@ int huffmanCompressor::decompress(char * src, int inputSize, string & dst)
         //extract char
         unsigned char ch = chi16 & 0xFF;
 
-        cout<<"Decoded \""<<ch<<"\"";
+        //and append it to output
+
+        dst += (char) ch;
+        //cout<<"Decoded \""<<ch<<"\"";
 
         //get its code length
         int codelen = table[ch].code_len;
-        cout<<" with code length "<<codelen<<"\n";
+        //cout<<" with code length "<<codelen<<"\n";
         nw >>= codelen;
 
         //cout<<"Final carry 0x"<<nw<<"\n";
@@ -335,7 +392,7 @@ int huffmanCompressor::decompress(char * src, int inputSize, string & dst)
         //save bits
         carry = nw;
         nr_carry_bits = nr_carry_bits + full_bytes * 8 - codelen;
-        //cout<<dec<<"Extra bits "<<nr_carry_bits<<"\n";
+        //cout<<dec<<"Extra bits "<<nr_carry_bits<<"\n\n";
 
         //stats
         outputsize ++;

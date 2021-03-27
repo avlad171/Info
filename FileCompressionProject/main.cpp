@@ -152,6 +152,7 @@ int main(int argc, char * argv[])
     {
         char * inbuf = new char [1024];
         char * outbuf = new char [4096];
+        uint64_t filesize = 0;
 
         //parse the input file and update freqs
         while(true)
@@ -163,16 +164,17 @@ int main(int argc, char * argv[])
 
             if(raw.eof())
                 break;
-
         }
 
         //build tree
         HFC.buildTree();
 
         //output tree in the file
-        char * header = new char [256];
-        HFC.serialize(header);
-        temp.write(header, 256);
+        char * header = new char [266];
+        header[0] = 'H';
+        header[1] = 'C';
+        HFC.serialize(header + 10);
+        temp.write(header, 266);
         delete [] header;
 
         //reset the input file
@@ -182,15 +184,18 @@ int main(int argc, char * argv[])
         //do actual compression
         while(true)
         {
+            int writeBytes = 0;
+
+            //read packet
             raw.read(inbuf, 1024);
             int readBytes = raw.gcount();
 
-            int writeBytes = 0;
+            //increment file size
+            filesize += readBytes;
 
             if(raw.eof())
             {
-                //HFC.compressFinal(inbuf, outbuf, readBytes, writeBytes);
-                HFC.compress(inbuf, outbuf, readBytes, writeBytes);
+                HFC.compressFinal(inbuf, outbuf, readBytes, writeBytes);
                 temp.write(outbuf, writeBytes);
 
                 break;
@@ -200,10 +205,14 @@ int main(int argc, char * argv[])
             {
                 HFC.compress(inbuf, outbuf, readBytes, writeBytes);
                 temp.write(outbuf, writeBytes);
-                //HFC.decompress(outbuf, )
             }
         }
 
+        //write uncompressed size in header
+        temp.seekp(2);
+        temp.write((const char*)&filesize, 8);
+
+        temp.close();
         delete [] inbuf;
         delete [] outbuf;
     }
@@ -213,17 +222,27 @@ int main(int argc, char * argv[])
         char * inbuf = new char [1024];
 
         //read header
-        char * header = new char [256];
-        raw.read(header, 256);
+        char * header = new char [266];
+        raw.read(header, 266);
 
-        if(raw.eof() || raw.gcount() < 256)
+        if(raw.eof() || raw.gcount() < 266)
         {
             cout<<"Error: unable to parse huffman header!\n";
             return -1;
         }
 
+        if(header[0] != 'H' || header[1] != 'C')
+        {
+            cout<<"Error: header file corrupted!\n";
+            return -1;
+        }
+
+        //read output file size
+        uint64_t outputFileSize;
+        memcpy(&outputFileSize, header + 2, 8);
+
         //build tree from header
-        HFC.deserialize(header);
+        HFC.deserialize(header + 10);
         delete [] header;
 
         //read and decompress data
@@ -237,10 +256,14 @@ int main(int argc, char * argv[])
 
             HFC.decompress(inbuf, readBytes, plm);
 
+            cout.write(plm.data(), min(plm.size(), outputFileSize));
             plm.clear();
             if(raw.eof())
                 break;
         }
+
+        delete [] inbuf;
+        cout<<"\n\n";
 
     }
 

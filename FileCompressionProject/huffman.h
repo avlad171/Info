@@ -7,7 +7,7 @@
 
 struct hNode
 {
-    int sum = 0;
+    int64_t sum = 0;
     int16_t pos = -1;
     int16_t ch = 0;
 
@@ -83,6 +83,16 @@ public:
     int isInitialized()
     {
         return tree_built;
+    };
+
+    uint64_t getInputSize()
+    {
+        return inputsize;
+    };
+
+    uint64_t getOutputSize()
+    {
+        return outputsize;
     };
 
     //reset

@@ -314,6 +314,8 @@ int lzw::decompress(char * src, int inputSize, bstring & buf)
 
 void lzw::printInfo()
 {
+    cout<<"LZW compression summary:\n";
     cout<<"Read input bytes: "<<inputsize<<"\n";
     cout<<"Written output bytes "<<outputsize<<"\n";
+    cout<<endl;
 }

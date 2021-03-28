@@ -14,7 +14,7 @@ huffmanCompressor::huffmanCompressor()
     links = new int [256];
 
     //initialize sentinel node
-    inf.sum = 0x7fffffff;
+    inf.sum = 0x7fffffffffffffffLL;
 
     //initialize internal data
     actual_char_number = 0;
@@ -66,7 +66,6 @@ int huffmanCompressor::buildTree()
         {
             temp.pos = i;
             Q1[actual_char_number] = temp;
-            //cout<<"INSEREZ IN COADA "<<table[i].ch<<" CU FRECV "<<temp.sum<<"\n";
             ++actual_char_number;
         }
     }
@@ -92,13 +91,11 @@ int huffmanCompressor::buildTree()
             {
 
                 x[i] = &Q1[q1];
-                //cout<<"IAU ELEMENTUL CU FRECVENTA "<<x[i]->sum<<"("<<q1<<") DIN COADA Q1\n";
                 ++q1;
             }
             else
             {
                 x[i] = &Q2[q2];
-                //cout<<"IAU ELEMENTUL DE LEGATURA CU FRECVENTA "<<x[i]->sum<<"("<<q2<<") DIN COADA Q2\n";
                 ++q2;
             }
         }
@@ -118,9 +115,9 @@ int huffmanCompressor::buildTree()
     DF(root, 0, 0);
 
     //initial debug print
-    cout<<"Initial debug print\n";
-    for(int i = 0; i < 256; ++i)
-        cout<<table[i].ch<<" "<<table[i].frequency<<" "<<table[i].code_len<<" "<<table[i].code<<"\n";
+    //cout<<"Initial code table print\n";
+    //for(int i = 0; i < 256; ++i)
+    //    cout<<table[i].ch<<" "<<table[i].frequency<<" "<<table[i].code_len<<" "<<table[i].code<<"\n";
 
     //truncate codes to max 31 bits
     int limitation = 0;
@@ -158,13 +155,12 @@ int huffmanCompressor::buildTree()
     sort(table, table + 256, alphabetic_cmp);
 
     //second debug print
-    cout<<"Second debug print\n";
-    for(int i = 0; i < 256; ++i)
-        cout<<table[i].ch<<" "<<table[i].frequency<<" "<<table[i].code_len<<" "<<table[i].code<<"\n";
+    //cout<<"Canonic code table print\n";
+    //for(int i = 0; i < 256; ++i)
+    //    cout<<table[i].ch<<" "<<table[i].frequency<<" "<<table[i].code_len<<" "<<table[i].code<<"\n";
 
     //mark as initialized
     tree_built = 1;
-    cout<<"Tree building done!\n";
     return 1;
 }
 
@@ -263,21 +259,17 @@ int huffmanCompressor::compress(char * src, char * dst, int inputSize, int & out
         int codesize = table[c].code_len;
         int64_t code = brev(table[c].code, codesize);
 
-        cout<<"Char "<<c<<", code len "<<table[c].code_len<<", code "<<table[c].code<<"\n";
+        //cout<<"Char "<<c<<", code len "<<table[c].code_len<<", code "<<table[c].code<<"\n";
 
         //if codesize is 0 but character appears something went wrong
         if(codesize == 0 && table[c].frequency != 0)
             throw runtime_error("Error: character has a code size of 0!\n");
 
         carry = carry | ((1uLL * code) << nr_carry_bits);
-        //cout<<"Generated carry: 0x"<<hex<<carry<<dec<<"\n";
 
         //determine how many full bytes there are
         int full_bytes = (codesize + nr_carry_bits) / 8;
         nr_carry_bits = (codesize + nr_carry_bits) % 8;
-
-        //cout<<"Full bytes: "<<full_bytes<<"\n";
-        //cout<<"Leftover bits: "<<nr_carry_bits<<"\n";
 
         //copy the full bytes
         memcpy(dst + outputSize, &carry, full_bytes);
@@ -290,7 +282,6 @@ int huffmanCompressor::compress(char * src, char * dst, int inputSize, int & out
         carry = carry >> (8 * full_bytes);
     }
 
-    cout<<"Compression done - "<<outputsize<<"\n";
     return 1;
 }
 
@@ -320,21 +311,17 @@ int huffmanCompressor::compressFinal(char * src, char * dst, int inputSize, int 
         int codesize = table[c].code_len;
         int64_t code = brev(table[c].code, codesize);
 
-        cout<<"Char "<<c<<", code len "<<table[c].code_len<<", code "<<table[c].code<<"\n";
+        //cout<<"Char "<<c<<", code len "<<table[c].code_len<<", code "<<table[c].code<<"\n";
 
         //if codesize is 0 but character appears something went wrong
         if(codesize == 0 && table[c].frequency != 0)
             throw runtime_error("Error: character has a code size of 0!\n");
 
         carry = carry | ((1uLL * code) << nr_carry_bits);
-        //cout<<"Generated carry: 0x"<<hex<<carry<<dec<<"\n";
 
         //determine how many full bytes there are
         int full_bytes = (codesize + nr_carry_bits) / 8;
         nr_carry_bits = (codesize + nr_carry_bits) % 8;
-
-        //cout<<"Full bytes: "<<full_bytes<<"\n";
-        //cout<<"Leftover bits: "<<nr_carry_bits<<"\n";
 
         //copy the full bytes
         memcpy(dst + outputSize, &carry, full_bytes);
@@ -347,7 +334,6 @@ int huffmanCompressor::compressFinal(char * src, char * dst, int inputSize, int 
         carry = carry >> (8 * full_bytes);
     }
 
-    cout<<"Compression done - "<<outputsize<<"\n";
     return 1;
 }
 
@@ -534,9 +520,9 @@ int huffmanCompressor::deserialize(char * src)
     //make it alphabetic again
     sort(table, table + 256, alphabetic_cmp);
 
-    cout<<"Debug print\n";
-    for(int i = 0; i < 256; ++i)
-        cout<<table[i].ch<<" "<<table[i].frequency<<" "<<table[i].code_len<<" "<<table[i].code<<"\n";
+    //cout<<"Code table\n";
+    //for(int i = 0; i < 256; ++i)
+    //    cout<<table[i].ch<<" "<<table[i].frequency<<" "<<table[i].code_len<<" "<<table[i].code<<"\n";
 
     //insert codes in trie
     for(int i = 0; i < 256; ++i)
@@ -563,6 +549,14 @@ void huffmanCompressor::reset()
 
     carry = 0;
     nr_carry_bits = 0;
+}
+
+void huffmanCompressor::printInfo()
+{
+    cout<<"Huffman compression summary:\n";
+    cout<<"Read input bytes: "<<inputsize<<"\n";
+    cout<<"Written output bytes "<<outputsize<<"\n";
+    cout<<endl;
 }
 
 huffmanCompressor::~huffmanCompressor()

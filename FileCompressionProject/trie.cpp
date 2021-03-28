@@ -117,7 +117,7 @@ int trie::find_incremental(const char next)
     if(last_start->sons[c])
     {
         last_start = last_start->sons[c];
-        if(last_start->isWord)
+        if(last_start->isWord != -1)
             return last_start->isWord;
         else
         {
@@ -139,7 +139,7 @@ int trie::find_incremental_and_add(const char next)
     if(last_start->sons[c])
     {
         last_start = last_start->sons[c];
-        if(last_start->isWord)
+        if(last_start->isWord != -1)
             return last_start->isWord;
         else
         {

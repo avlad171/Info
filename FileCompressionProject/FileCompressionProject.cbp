@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gnu_gcc_compiler_64" />
-				<Option parameters="-h lzw.cpp compressed.dat" />
+				<Option parameters="-h raw.txt compressed.dat" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -21,7 +21,7 @@
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gnu_gcc_compiler_64" />
-				<Option parameters="-d lzw.dat decomp.txt" />
+				<Option parameters="-hd huffman2.dat decomp.txt" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>

@@ -74,6 +74,7 @@ public:
     int compress(char * src, char * dst, int inputSize, int & outputSize);
     int compressFinal(char * src, char * dst, int inputSize, int & outputSize);
     int decompress(char * src, int inputSize, std::string & dst);
+    int decompressFinal(char * src, int inputSize, std::string & dst);
 
     int deserialize(char * src);
     int serialize(char * dst);

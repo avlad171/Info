@@ -100,7 +100,10 @@ int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
     for(int i = 0; i < inputSize; ++i)
     {
         char P = src[i];
-        //cout<<"[DEBUG] Next "<<P<<"\n";
+        //if(isprint(P))
+        //    cout<<"[DEBUG] Next "<<P<<"\n";
+        //else
+        //    cout<<"[DEBUG] Next 0x"<<hex<<(unsigned int)P<<dec<<"\n";
 
         int code;
         //if dictionary is not full
@@ -140,6 +143,7 @@ int lzw::compress(char * src, char * dst, int inputSize, int & outputSize)
 
             //advance in trie
             last_code = T->find_incremental(P);
+            //cout<<"[DEBUG] Last code is now "<<last_code<<"\n";
         }
     }
 
@@ -248,11 +252,11 @@ int lzw::decompress(char * src, int inputSize, bstring & buf)
             //outputsize += outputSize;
             return i;
         }
-        cout<<"["<<i<<"] Reading from stream "<<full_bytes<<" bytes. Leftover "<<nr_carry_bits<<" bits\n";
+        //cout<<"["<<i<<"] Reading from stream "<<full_bytes<<" bytes. Leftover "<<nr_carry_bits<<" bits\n";
 
         //initialize code with what's left
         nw = carry;
-        cout<<"["<<i<<"] Initial code is 0x"<<nw<<"\n";
+        //cout<<"["<<i<<"] Initial code is 0x"<<nw<<"\n";
 
         //read from raw data stream
         memcpy(&carry, src + i, full_bytes);
@@ -263,11 +267,11 @@ int lzw::decompress(char * src, int inputSize, bstring & buf)
 
         //truncate code
         nw &= ((1<<codesize) - 1);
-        cout<<"["<<i<<"] Code is 0x"<<nw<<"\n";
+        //cout<<"["<<i<<"] Code is 0x"<<nw<<"\n";
 
         //there are 8*full_bytes - (codesize - nr_carry_bits) bits left in the carry
         carry = carry >> (codesize - nr_carry_bits);
-        cout<<"["<<i<<"] Carry is 0x"<<carry<<"\n";
+        //cout<<"["<<i<<"] Carry is 0x"<<carry<<"\n";
 
         //compute the number of leftover bits
         nr_carry_bits = (codesize - nr_carry_bits + 8) % 8;
@@ -275,13 +279,13 @@ int lzw::decompress(char * src, int inputSize, bstring & buf)
         if(H.find(nw) != H.end())    //the code is indexed
         {
             //"print" code
-            cout<<H[nw].data()<<"\n";
+            //cout<<H[nw].data()<<"\n";
             buf += H[nw];
             outputsize += H[nw].size();
 
             unsigned char c = H[nw][0];
 
-            if(old.size())
+            if(old.size() && hStoredWords < (1 << codesize))
             {
                 //insert new string into the dictionary
                 H[hStoredWords++] = old + c;
@@ -292,14 +296,15 @@ int lzw::decompress(char * src, int inputSize, bstring & buf)
 
         else
         {
-            cout<<"Code 0x"<<nw<<" not found!\n";
+            //cout<<"Code 0x"<<nw<<" not found!\n";
             unsigned char c = old[0];
             old = old + c;
-            cout<<old.data()<<"\n";
+            //cout<<old.data()<<"\n";
             buf += old;
             outputsize += old.size();
 
-            H[hStoredWords++] = old;
+            if(hStoredWords < (1 << codesize))
+                H[hStoredWords++] = old;
         }
 
     }

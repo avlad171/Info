@@ -404,6 +404,77 @@ int huffmanCompressor::decompress(char * src, int inputSize, string & dst)
     return inputSize;
 }
 
+int huffmanCompressor::decompressFinal(char * src, int inputSize, string & dst)
+{
+    //read from stream
+    for(int i = 0; i < inputSize || nr_carry_bits;)
+    {
+        int64_t nw = carry; //next input code is equal with what's left
+        int full_bytes = 0; //number of full bytes read
+
+        //cout<<hex<<"Carry is 0x"<<nw<<"\n";
+
+        if(nr_carry_bits < 31)  //need to fetch more bits
+        {
+            //determine how many bytes to read
+            full_bytes = min(4, inputSize - i);
+            //cout<<"Reading extra "<<full_bytes<<" bytes\n";
+
+            if(full_bytes)
+            {
+                //read from raw data stream
+                memcpy(&carry, src + i, full_bytes);
+                i += full_bytes;
+
+                //cout<<"Read from input 0x"<<carry<<"\n";
+
+                //complete the code with the new data
+                nw = nw | (carry << nr_carry_bits);
+            }
+        }
+
+        //cout<<"Final code 0x"<<nw<<"\n";
+
+        //search for the code
+        int16_t chi16 = find_reverse(root, nw, nr_carry_bits + full_bytes * 8);
+
+        if(chi16 == -1)
+        {
+            if(i < inputSize)
+                cout<<"Warning! Code not found!\n";
+            return i;
+        }
+
+        //extract char
+        unsigned char ch = chi16 & 0xFF;
+
+        //and append it to output
+
+        dst += (char) ch;
+        //cout<<"Decoded \""<<ch<<"\"";
+
+        //get its code length
+        int codelen = table[ch].code_len;
+        //cout<<" with code length "<<codelen<<"\n";
+        nw >>= codelen;
+
+        //cout<<"Final carry 0x"<<nw<<"\n";
+
+        //save bits
+        carry = nw;
+        nr_carry_bits = nr_carry_bits + full_bytes * 8 - codelen;
+        //cout<<dec<<"Extra bits "<<nr_carry_bits<<"\n\n";
+
+        //stats
+        outputsize ++;
+    }
+
+    //stats
+    inputsize += inputSize;
+
+    return inputSize;
+}
+
 int huffmanCompressor::serialize(char * dst)
 {
     for(int i = 0; i < 256; ++i)

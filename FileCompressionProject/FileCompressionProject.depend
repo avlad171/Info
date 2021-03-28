@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1616886187 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
+1616889787 source:d:\dropbox\c++projects\filecompressionproject\main.cpp
 	<iostream>
 	<fstream>
 	<time.h>
@@ -7,30 +7,30 @@
 	"lzw.h"
 	"huffman.h"
 
-1616678132 d:\dropbox\c++projects\filecompressionproject\trie.h
+1616681732 d:\dropbox\c++projects\filecompressionproject\trie.h
 	<string.h>
 
-1616678648 source:d:\dropbox\c++projects\filecompressionproject\trie.cpp
+1616924824 source:d:\dropbox\c++projects\filecompressionproject\trie.cpp
 	"trie.h"
 	<iostream>
 
-1616884095 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
+1616926041 source:d:\dropbox\c++projects\filecompressionproject\lzw.cpp
 	"lzw.h"
 	<iostream>
 	<vector>
 
-1616711658 d:\dropbox\c++projects\filecompressionproject\lzw.h
+1616715258 d:\dropbox\c++projects\filecompressionproject\lzw.h
 	"trie.h"
 	<inttypes.h>
 	<unordered_map>
 	<algorithm>
 
-1616885515 source:d:\dropbox\c++projects\filecompressionproject\huffman.cpp
+1616922629 source:d:\dropbox\c++projects\filecompressionproject\huffman.cpp
 	"huffman.h"
 	<iostream>
 	<string.h>
 
-1616862448 d:\dropbox\c++projects\filecompressionproject\huffman.h
+1616922599 d:\dropbox\c++projects\filecompressionproject\huffman.h
 	<inttypes.h>
 	<string>
 	<algorithm>

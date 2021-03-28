@@ -54,9 +54,19 @@ public:
     void reset();
 
     //getters
-    getCodeSize()
+    int getCodeSize()
     {
         return codesize;
+    };
+
+    uint64_t getInputSize()
+    {
+        return inputsize;
+    };
+
+    uint64_t getOutputSize()
+    {
+        return outputsize;
     };
 
     //print stats

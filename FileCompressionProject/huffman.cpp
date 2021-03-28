@@ -122,6 +122,23 @@ int huffmanCompressor::buildTree()
     for(int i = 0; i < 256; ++i)
         cout<<table[i].ch<<" "<<table[i].frequency<<" "<<table[i].code_len<<" "<<table[i].code<<"\n";
 
+    //truncate codes to max 31 bits
+    int limitation = 0;
+    for(int i = 0; i < 256; ++i)
+        if(table[i].code_len > 31)
+        {
+            limitation = 1;
+            cout<<"Warning: the optimal huffman encoding contains codes longer than 31 bits! In order to avoid this the compression will be a little sub-optimal!\n";
+            break;
+        }
+
+    //make each code longer than 23 31 bits so the canonic generator can code each of them
+    if(limitation)
+        for(int i = 0; i < 256; ++i)
+        if(table[i].code_len >= 24)
+            table[i].code_len = 31;
+
+
     //make the table cannonic - https://en.wikipedia.org/wiki/Canonical_Huffman_code
     sort(table, table + 256, canonic_cmp);
 
@@ -337,7 +354,7 @@ int huffmanCompressor::compressFinal(char * src, char * dst, int inputSize, int 
 int huffmanCompressor::decompress(char * src, int inputSize, string & dst)
 {
     //read from stream
-    for(int i = 0; i < inputSize || nr_carry_bits;)
+    for(int i = 0; i < inputSize;)
     {
         int64_t nw = carry; //next input code is equal with what's left
         int full_bytes = 0; //number of full bytes read

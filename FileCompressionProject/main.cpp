@@ -77,7 +77,7 @@ int main(int argc, char * argv[])
         //ofstream compStage1 ("lzw.dat", ios::out | ios::binary);
 
         char * inbuf = new char [1024];
-        char * outbuf = new char [1536];
+        char * outbuf = new char [1536];    //using 12 bits/code the worst case is that each 8 bit char becomes a 12 bit code (*1.5)
 
         while(true)
         {
@@ -89,7 +89,6 @@ int main(int argc, char * argv[])
             if(raw.eof())
             {
                 LZW.compressFinal(inbuf, outbuf, readBytes, writeBytes);
-                //cout.write(outbuf, writeBytes);
                 temp.write(outbuf, writeBytes);
 
                 break;
@@ -98,7 +97,6 @@ int main(int argc, char * argv[])
             else
             {
                 LZW.compress(inbuf, outbuf, readBytes, writeBytes);
-                //cout.write(outbuf, writeBytes);
                 temp.write(outbuf, writeBytes);
             }
         }

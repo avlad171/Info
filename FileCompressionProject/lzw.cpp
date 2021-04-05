@@ -231,12 +231,6 @@ int lzw::decompress(char * src, int inputSize, bstring & buf)
     //stats
     inputsize += inputSize;
 
-    //buf
-    //bstring buf;
-
-    //debug
-    cout<<hex;
-
     for(int i = 0; i < inputSize;)
     {
         int nw = 0; //next input code

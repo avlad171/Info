@@ -1,0 +1,20 @@
+# depslib dependency file v1.0
+1615637893 source:d:\dropbox\c++projects\indexfilesystem\main.cpp
+	<iostream>
+	"btree.h"
+	"keytype.h"
+
+1615586402 d:\dropbox\c++projects\indexfilesystem\btree.h
+	<fstream>
+	<string>
+	<string.h>
+	"keytype.h"
+
+1615639893 source:d:\dropbox\c++projects\indexfilesystem\btree.cpp
+	"btree.h"
+	<iostream>
+	<algorithm>
+
+1615586413 d:\dropbox\c++projects\indexfilesystem\keytype.h
+	<iostream>
+

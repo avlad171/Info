@@ -1,0 +1,59 @@
+#include <iostream>
+#include <fstream>
+#include <string.h>
+#include <unistd.h>
+#include <vector>
+
+#include "token.h"
+
+using namespace std;
+
+void printUsage()
+{
+    cout<<"Usage: ./prog -p <file1> <file2> for direct comparison or\n"
+        "./prog -t <directory> to apply the algorithm between each pair of files in the directory\n";
+}
+
+vector <token> parseFile(char * path)
+{
+    ifstream f (path);
+    if(f.fail())
+    {
+        string err = "Unable to open file \"" + path + "\"";
+        throw runtime_error(err);
+    }
+}
+
+int main(int argc, char * argv[])
+{
+    if(argc < 3)
+    {
+        printUsage();
+        return 1;
+    }
+
+    if(!strcmp(argv[1], "-p"))  //pair mode
+    {
+        if(argc < 4)    //this mode needs an extra argument
+        {
+            cout<<"Too few arguments\n";
+            return 1;
+        }
+
+        //actual code begins here
+
+    }
+
+    else if(!strcmp(argv[1], "-t"))     //tabular mode
+    {
+        cout<<"Tab mode not done yet!\n";
+    }
+
+    else    //invalid argument
+    {
+        cout<<"Invalid argument\n";
+        return 1;
+    }
+
+    return 0;
+}

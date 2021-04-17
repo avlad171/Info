@@ -44,7 +44,7 @@ public:
     //operators
     friend void swap(token& first, token& second);
 
-    token & operator = (token & other);
+    token & operator = (token other);
 
     bool operator == (const token & other) const;
 

@@ -35,7 +35,7 @@ void swap(token& first, token& second)
     swap(first.data, second.data);
 }
 
-token& token::operator = (token & other)
+token& token::operator = (token other)
 {
     swap(*this, other);
     return *this;

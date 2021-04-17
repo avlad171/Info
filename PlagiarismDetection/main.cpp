@@ -23,11 +23,7 @@ vector <token> LCSfull(vector<token> & a, vector<token> & b)    //full version o
     for(i = 1; i <= a.size(); i++)
         for(j = 1; j <= b.size(); j++)
             if (a[i - 1] == b[j - 1])
-            {
-                //cout<<"i = "<<i<<", j = "<<j<<"\n";
-                //cout<<"Compared \""<<a[i - 1]<<"\" ("<<a[i - 1].getH1()<<", "<<a[i - 1].getH2()<<") with \""<<b[j - 1]<<"\" ("<<b[j - 1].getH1()<<", "<<b[j - 1].getH2()<<") and they are equal.\n";
                 d[i][j] = 1 + d[i - 1][j - 1];
-            }
             else
                 d[i][j] = max(d[i - 1][j], d[i][j - 1]);
 
@@ -36,16 +32,6 @@ vector <token> LCSfull(vector<token> & a, vector<token> & b)    //full version o
 
     //create space for lcs itself
     vector <token> ans (lcsLen);
-
-    //debug
-    /*for(int i = 0; i <= a.size(); i++)
-    {
-        for(int j = 0; j <= b.size(); j++)
-        {
-            cout<<d[i][j]<<" ";
-        }
-        cout<<"\n";
-    }*/
 
     //compute lcs via backtracking
     --i;
@@ -72,10 +58,64 @@ vector <token> LCSfull(vector<token> & a, vector<token> & b)    //full version o
     return ans;
 }
 
-/*vector <token> LCS(vector<token> a, vector<token> b)
+int NWScore(vector<token> & a, vector<token> & b)
 {
+    cout<<"NWScore called: "<<a.size()<<", "<<b.size()<<"\n";
+    //allocate mem
+    //int * _d = new int [2 * (b.size() + 2)];
+    //int * d [2];
+    //d[0] = _d;
+    //d[1] = _d + b.size() + 2;
 
-}*/
+    //set each element to 0
+    //memset(_d, 0, 2 * (b.size() + 2) * sizeof(int));
+
+    //init first row
+    for(int i = 1; i <= b.size(); ++i)
+        d[0][i] = -i;
+
+    //dynamic prog
+    bool cLine = 1;
+    for(int i = 1; i <= a.size(); ++i)
+    {
+        //init first collumn
+        d[i][0] = -i;
+
+        //actual computation
+        for(int j = 1; j <= b.size(); ++j)
+        {
+            int del = d[i - 1][j] - 1;
+            int ins = d[i][j - 1] - 1;
+
+            int match = d[i - 1][j - 1] - 1;
+            if(a[i - 1] == b[j - 1])
+            {
+                match = d[i - 1][j - 1];
+            }
+
+            d[i][j] = max(match, max(ins, del));
+        }
+
+        //switch current and previous lines
+        cLine ^= 1;
+    }
+
+    //switch back to last line
+    cLine ^= 1;
+
+    for(int i = 0; i <= a.size(); ++i)
+    {
+        for(int j = 0; j <= b.size(); ++j)
+            cout<<d[i][j]<<" ";
+        cout<<endl;
+    }
+    //extract answer
+    int ans = d[a.size()][b.size()];
+
+    //cleanup and return
+    //delete [] _d;
+    return ans;
+}
 
 vector <token> parseFile(char * path)
 {
@@ -131,6 +171,8 @@ int main(int argc, char * argv[])
 
         cout<<"That is "<<((lcs.size() * 100)/((double)s1.size()))<<"% of text 1 and "<<((lcs.size() * 100)/((double)s2.size()))<<"% of text 2.\n";
 
+        int dsa = NWScore(s1, s2);
+        cout<<"NWScore is: "<<dsa<<"\n";
     }
 
     else if(!strcmp(argv[1], "-t"))     //tabular mode

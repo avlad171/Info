@@ -1,10 +1,11 @@
 # depslib dependency file v1.0
-1618519686 source:d:\dropbox\c++projects\plagiarismdetection\main.cpp
+1618657994 source:d:\dropbox\c++projects\plagiarismdetection\main.cpp
 	<iostream>
 	<fstream>
 	<string.h>
 	<unistd.h>
 	<vector>
+	<algorithm>
 	"token.h"
 
 1618520420 source:d:\dropbox\c++projects\plagiarismdetection\token.cpp

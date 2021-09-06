@@ -23,7 +23,7 @@ void printEntry(const char * s, int lvl)
 {
     for(int i = 0; i < lvl - 1; ++i)
         cout<<"| ";
-    cout<<"\xC3-"<<s;
+    cout<<"\xC3\xC4"<<s;
 }
 
 int parse(string path, int lvl)
@@ -49,10 +49,8 @@ int parse(string path, int lvl)
 		newpath += "/";
 		newpath += dirinfo->d_name;
 
-		for(int i = 0; i < lvl; ++i)
-            cout<<"\t";
-		cout<<newpath<<" ";
-		//printEntry(dirinfo->d_name, lvl);
+		//cout<<newpath<<" ";
+		printEntry(dirinfo->d_name, lvl);
 
 		//cerem informatii despre ce se afla aici
 		struct stat istat;      //trebe musai struct in fara ca sa nu se confunde cu functia

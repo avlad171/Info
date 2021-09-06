@@ -51,7 +51,8 @@ int parse(string path, int lvl)
 
 		for(int i = 0; i < lvl; ++i)
             cout<<"\t";
-		cout<<newpath<<"\n";
+		cout<<newpath<<" ";
+		//printEntry(dirinfo->d_name, lvl);
 
 		//cerem informatii despre ce se afla aici
 		struct stat istat;      //trebe musai struct in fara ca sa nu se confunde cu functia
@@ -64,19 +65,20 @@ int parse(string path, int lvl)
 		//daca chestia ii director il parsam recursiv
 		if(S_ISDIR(istat.st_mode))
 		{
+		    cout<<"\n";
 			parse(newpath, lvl + 1);
 		}
 
 		//daca ii fisier ii aflam dimensiunea
 		else if(S_ISREG(istat.st_mode))
 		{
-
+            cout<<" - "<<istat.st_size<<"\n";
 		}
 
 		//daca nu-i atunci afisam UNK sau ceva...
 		else
 		{
-
+            cout<<" - UNK\n";
 		}
 	}
 

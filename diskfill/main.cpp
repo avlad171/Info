@@ -19,11 +19,14 @@ public:
 };
 
 #define MAX_PATH 4100
-void printEntry(const char * s, int lvl)
+void printEntry(const char * s, int lvl, bool last)
 {
     for(int i = 0; i < lvl - 1; ++i)
         cout<<"| ";
-    cout<<"\xC3\xC4"<<s;
+    if(!last)
+        cout<<"\xC3\xC4"<<s;
+    else
+        cout<<"\xC0\xC4"<<s;
 }
 
 int parse(string path, int lvl)
@@ -37,12 +40,37 @@ int parse(string path, int lvl)
 	}
 
 	//aici parsam propriu-zis
-	dirent* dirinfo;
-	while((dirinfo = readdir(d)) != NULL)       //cat timp mai avem chestii in director
+	dirent* dirinfo = new dirent;
+	dirent * temp = readdir(d);
+	if(temp == NULL) //director gol sau eroare
+    {
+        //cleanup
+        if(closedir(d) < 0)
+        {
+            perror("closedir()");
+            exit(EXIT_FAILURE);
+        }
+        return 0;
+    }
+
+    memcpy (dirinfo, temp, sizeof(dirent));
+
+    bool last = false;
+	while(!last)       //cat timp mai avem chestii in director
 	{
+	    temp = readdir(d);
+		if(temp == NULL) //am ajuns la capat
+        {
+            last = true;    //mai avem doar directoru asta de parsat, urmatoarea iteratie nu se mai executa
+        }
+
 		//nu parsam . si ..
 		if(!strcmp(dirinfo->d_name, ".") || !strcmp(dirinfo->d_name, ".."))
+		{
+		    if(!last)
+                memcpy (dirinfo, temp, sizeof(dirent));
 			continue;
+		}
 
         //construim calea noua
         string newpath = path;
@@ -50,7 +78,7 @@ int parse(string path, int lvl)
 		newpath += dirinfo->d_name;
 
 		//cout<<newpath<<" ";
-		printEntry(dirinfo->d_name, lvl);
+		printEntry(dirinfo->d_name, lvl, last);
 
 		//cerem informatii despre ce se afla aici
 		struct stat istat;      //trebe musai struct in fara ca sa nu se confunde cu functia
@@ -63,7 +91,7 @@ int parse(string path, int lvl)
 		//daca chestia ii director il parsam recursiv
 		if(S_ISDIR(istat.st_mode))
 		{
-		    cout<<"\n";
+		    cout<<" - 0\n";
 			parse(newpath, lvl + 1);
 		}
 
@@ -78,6 +106,9 @@ int parse(string path, int lvl)
 		{
             cout<<" - UNK\n";
 		}
+
+		if(!last)
+            memcpy (dirinfo, temp, sizeof(dirent));
 	}
 
 	//cleanup
@@ -86,6 +117,7 @@ int parse(string path, int lvl)
 		perror("closedir()");
 		exit(EXIT_FAILURE);
 	}
+	delete dirinfo;
 
 	return 0;
 }

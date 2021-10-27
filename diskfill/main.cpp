@@ -4,6 +4,7 @@
 #include <vector>
 //#include <set>
 #include <algorithm>
+#include <chrono>
 
 //posix
 #include <unistd.h>
@@ -13,6 +14,7 @@
 
 //c
 #include <stdlib.h>
+#include <time.h>
 
 using namespace std;
 
@@ -95,11 +97,11 @@ public:
 
         if(last)
         {
-            cout<<"\xC0\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
+            cout<<"|_"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
             ap[lvl] = 0;    //nu mai afisez linii pe randu asta
         }
         else
-            cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
+            cout<<">-"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
     }
 };
 
@@ -179,11 +181,11 @@ public:
 
         if(last)
         {
-            cout<<"\xC0\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
+            cout<<"|_"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
             ap[lvl] = 0;    //nu mai afisez linii pe randu asta
         }
         else
-            cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
+            cout<<">-"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
 
         for(auto it = fiu.begin(); already_shown < max_show && it != fiu.end(); ++it, ++already_shown)
         {
@@ -203,7 +205,7 @@ public:
         {
             for(int i = 1; i <= lvl; ++i)
             if(ap[i])
-                cout<<"| ";
+                cout<<"| ";//cout<<"\xB3 ";
             else
                 cout<<"  ";
             cout<<"\xC0\xC4"<<" and "<<fiu.size() - already_shown<<" more entries!\n";
@@ -226,6 +228,9 @@ public:
 
 int parse(string path, int lvl, node * n)
 {
+    time_t time_now = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    char * ctime_no_newline = strtok(ctime(&time_now), "\n");
+    cout<<"["<<ctime_no_newline<<"] Parsing "<<path<<"\n";
     //deschidem directoru' posix-style
     DIR* d = opendir(path.c_str());
 	if(d == NULL)
@@ -248,11 +253,11 @@ int parse(string path, int lvl, node * n)
 		newpath += dirinfo->d_name;
 
 		//cerem informatii despre ce se afla aici
-		struct stat istat;      //trebe musai struct in fara ca sa nu se confunde cu functia
-		if(stat(newpath.c_str(), &istat) < 0)
+		struct stat64 istat;      //trebe musai struct in fara ca sa nu se confunde cu functia
+		if(stat64(newpath.c_str(), &istat) < 0)
 		{
 			perror(newpath.c_str());
-			return -1;
+			continue;
 		}
 
 		//testez ca si in arborele construit de mine sa ma aflu pe director
@@ -260,7 +265,7 @@ int parse(string path, int lvl, node * n)
         if(!c)
         {
             cout<<"Error! Internal representation data structure corrupted!\n";
-            return -1;
+            exit(EXIT_FAILURE);
         }
 
 		//daca chestia ii director il parsam recursiv
@@ -274,7 +279,7 @@ int parse(string path, int lvl, node * n)
 		//daca ii fisier ii aflam dimensiunea
 		else if(S_ISREG(istat.st_mode))
 		{
-		    file_node * f = new file_node(dirinfo->d_name, istat.st_size);
+		    file_node * f = new file_node(dirinfo->d_name, 1uLL * (uint64_t)istat.st_size);
 		    c->insert_new_file(f);
 		}
 
@@ -298,7 +303,7 @@ int parse(string path, int lvl, node * n)
 int main(int argc, char * argv[])
 {
     //2 moduri: 1 - fara argumente, pleaca de la cwd
-    //          2 - cu argumente, pleaca de la argv[1]
+    //          2 - cu argumente, pleaca de la argv[2]
 
     //calea
     string path = "";
@@ -306,7 +311,7 @@ int main(int argc, char * argv[])
     //max elements shown
     uint32_t max_show = 5;
 
-    if(argc < 2)
+    if(argc < 3)
     {
         //obtinem cwd
         char buf[MAX_PATH];
@@ -320,21 +325,23 @@ int main(int argc, char * argv[])
 
         path += ans;
         //aici avem cwd in path
-    }
 
-    else if(argc < 3)   //avem argv[1]
-    {
-        path = argv[1];
+        if(argc == 2)
+        {
+            max_show = strtol(argv[1], NULL, 10);
+            cout<<"Maximum entries shown: "<<max_show<<"\n";
+        }
     }
 
     else
     {
         path = argv[1];
-        max_show = strtol(argv[3], NULL, 10);
+        max_show = strtol(argv[2], NULL, 10);
+        cout<<"Maximum entries shown: "<<max_show<<"\n";
+        cout<<"User defined start directory: "<<path<<"\n";
     }
 
     //orice caz am fi ales putem sa incepem sa exploram
-    cout<<"CWD: "<<path<<"\n\n";
 
     //creez arborele meu
     folder_node * root = new folder_node(path);
@@ -351,6 +358,7 @@ int main(int argc, char * argv[])
     ap[1] = 1;
 
     //afisam
+    cout<<"\n\nCWD: "<<path<<"\n";
     root->print(1, 1, ap, 0, max_show);
     return 0;
 }

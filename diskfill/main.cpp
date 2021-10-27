@@ -39,7 +39,7 @@ public:
     }
 
     virtual uint64_t process() = 0;
-    virtual void print(int level, int last, vector<bool> & ap) = 0;
+    virtual void print(int level, int last, vector<bool> & ap, uint64_t p_size) = 0;
 
     bool operator == (const node & rhs)
     {
@@ -73,7 +73,7 @@ public:
         return this->sz;
     }
 
-    void print(int lvl, int last, vector<bool> & ap)
+    void print(int lvl, int last, vector<bool> & ap, uint64_t p_size)
     {
         for(int i = 1; i < lvl; ++i)
             if(ap[i])
@@ -81,13 +81,22 @@ public:
             else
                 cout<<"  ";
 
+        double procent = 0;
+        if(p_size == 0)
+            procent = 100;
+        else
+        {
+            procent = (double)this->sz / (double)(p_size);
+            procent *= 100.;
+        }
+
         if(last)
         {
-            cout<<"\xC0\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+            cout<<"\xC0\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
             ap[lvl] = 0;    //nu mai afisez linii pe randu asta
         }
         else
-            cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+            cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
     }
 };
 
@@ -146,7 +155,7 @@ public:
         return this->sz;
     }
 
-    void print(int lvl, int last, vector<bool> & ap)
+    void print(int lvl, int last, vector<bool> & ap, uint64_t p_size)
     {
         for(int i = 1; i < lvl; ++i)
             if(ap[i])
@@ -154,13 +163,22 @@ public:
             else
                 cout<<"  ";
 
+        double procent = 0;
+        if(p_size == 0)
+            procent = 100;
+        else
+        {
+            procent = (double)this->sz / (double)(p_size);
+            procent *= 100.;
+        }
+
         if(last)
         {
-            cout<<"\xC0\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+            cout<<"\xC0\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
             ap[lvl] = 0;    //nu mai afisez linii pe randu asta
         }
         else
-            cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+            cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
 
         for(auto it = fiu.begin(); it != fiu.end(); ++it)
         {
@@ -168,11 +186,11 @@ public:
             {
                 //afisez linii pe randu urmator
                 ap[lvl + 1] = 1;
-                (*it)->print(lvl + 1, 0, ap);
+                (*it)->print(lvl + 1, 0, ap, this->sz);
             }
             else
             {
-                (*it)->print(lvl + 1, 1, ap);
+                (*it)->print(lvl + 1, 1, ap, this->sz);
             }
         }
     }
@@ -308,6 +326,6 @@ int main(int argc, char * argv[])
     ap[1] = 1;
 
     //afisam
-    root->print(1, 1, ap);
+    root->print(1, 1, ap, 0);
     return 0;
 }

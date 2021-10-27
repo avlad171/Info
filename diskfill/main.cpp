@@ -15,6 +15,7 @@ class node
 {
     //voi face un alt arbore in care voi stoca detalii despre fiecare director si fisier
 protected:
+    int maxdepth;
     uint64_t sz; //dimensiune
     string name; //path
 
@@ -30,8 +31,13 @@ public:
         return this->sz;
     }
 
+    int get_maxdepth()
+    {
+        return this->maxdepth;
+    }
+
     virtual uint64_t process() = 0;
-    virtual void print(int level, int lastlevel) = 0;
+    virtual void print(int level, int last, vector<bool> & ap) = 0;
 
     //dtor
     virtual ~node() {};
@@ -44,6 +50,7 @@ public:
     {
         this->name = new_name;
         this->sz = new_size;
+        this->maxdepth = 1;
     }
 
     file_node(const char * new_name, uint64_t new_size)
@@ -51,6 +58,7 @@ public:
         this->name = "";
         this->name += new_name;
         this->sz = new_size;
+        this->maxdepth = 1;
     }
 
     uint64_t process()
@@ -58,11 +66,21 @@ public:
         return this->sz;
     }
 
-    void print(int lvl, int lastlvl)
+    void print(int lvl, int last, vector<bool> & ap)
     {
-        for(int i = 0; i < lvl - 1; ++i)
-            cout<<"| ";
-        cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+        for(int i = 1; i < lvl; ++i)
+            if(ap[i])
+                cout<<"| ";
+            else
+                cout<<"  ";
+
+        if(last)
+        {
+            cout<<"\xC0\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+            ap[lvl] = 0;    //nu mai afisez linii pe randu asta
+        }
+        else
+            cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
     }
 };
 
@@ -104,23 +122,41 @@ public:
         {
             f->process();
             this->sz += f->get_size();
+            this->maxdepth = max(this->maxdepth, f->get_maxdepth());
         }
 
         return this->sz;
     }
 
-    void print(int lvl, int lastlvl)
+    void print(int lvl, int last, vector<bool> & ap)
     {
-        for(int i = 0; i < lvl - 1; ++i)
-            cout<<"| ";
-        cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+        for(int i = 1; i < lvl; ++i)
+            if(ap[i])
+                cout<<"| ";
+            else
+                cout<<"  ";
 
-        for(uint32_t i = 0; i < fiu.size() ; ++i)
+        if(last)
         {
-            fiu[i]->print(lvl + 1, lvl);
+            cout<<"\xC0\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+            ap[lvl] = 0;    //nu mai afisez linii pe randu asta
         }
-        //if(fiu.size())
-        //    fiu[fiu.size() - 1]->print(lvl + 1, lvl);
+        else
+            cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" (TBD)\n";
+
+        for(auto it = fiu.begin(); it != fiu.end(); ++it)
+        {
+            if((it + 1) != fiu.end())
+            {
+                //afisez linii pe randu urmator
+                ap[lvl + 1] = 1;
+                (*it)->print(lvl + 1, 0, ap);
+            }
+            else
+            {
+                (*it)->print(lvl + 1, 1, ap);
+            }
+        }
     }
 
     //dtor
@@ -135,12 +171,6 @@ public:
 };
 
 #define MAX_PATH 4100
-/*void printEntry(const char * s, int lvl)
-{
-    for(int i = 0; i < lvl - 1; ++i)
-        cout<<"| ";
-    cout<<"\xC3\xC4"<<s;
-}*/
 
 int parse(string path, int lvl, node * n)
 {
@@ -254,7 +284,12 @@ int main(int argc, char * argv[])
     //procesam
     root->process();
 
+    //vector de apartii pt liniile pe care o sa le trag
+    vector<bool> ap;
+    ap.reserve(root->get_maxdepth() + 2);
+    ap[1] = 1;
+
     //afisam
-    root->print(1, 1);
+    root->print(1, 1, ap);
     return 0;
 }

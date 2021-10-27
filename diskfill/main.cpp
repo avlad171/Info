@@ -11,6 +11,9 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+//c
+#include <stdlib.h>
+
 using namespace std;
 
 class node
@@ -39,7 +42,7 @@ public:
     }
 
     virtual uint64_t process() = 0;
-    virtual void print(int level, int last, vector<bool> & ap, uint64_t p_size) = 0;
+    virtual void print(int level, int last, vector<bool> & ap, uint64_t p_size, uint32_t max_show) = 0;
 
     bool operator == (const node & rhs)
     {
@@ -73,7 +76,7 @@ public:
         return this->sz;
     }
 
-    void print(int lvl, int last, vector<bool> & ap, uint64_t p_size)
+    void print(int lvl, int last, vector<bool> & ap, uint64_t p_size, uint32_t max_show)
     {
         for(int i = 1; i < lvl; ++i)
             if(ap[i])
@@ -155,8 +158,10 @@ public:
         return this->sz;
     }
 
-    void print(int lvl, int last, vector<bool> & ap, uint64_t p_size)
+    void print(int lvl, int last, vector<bool> & ap, uint64_t p_size, uint32_t max_show)
     {
+        uint32_t already_shown = 0;
+
         for(int i = 1; i < lvl; ++i)
             if(ap[i])
                 cout<<"| ";
@@ -180,18 +185,29 @@ public:
         else
             cout<<"\xC3\xC4"<<this->name<<" - "<<this->sz<<" ("<<procent<<" % of parent)\n";
 
-        for(auto it = fiu.begin(); it != fiu.end(); ++it)
+        for(auto it = fiu.begin(); already_shown < max_show && it != fiu.end(); ++it, ++already_shown)
         {
             if(next(it, 1) != fiu.end())
             {
                 //afisez linii pe randu urmator
                 ap[lvl + 1] = 1;
-                (*it)->print(lvl + 1, 0, ap, this->sz);
+                (*it)->print(lvl + 1, 0, ap, this->sz, max_show);
             }
             else
             {
-                (*it)->print(lvl + 1, 1, ap, this->sz);
+                (*it)->print(lvl + 1, 1, ap, this->sz, max_show);
             }
+        }
+
+        if(already_shown < fiu.size())
+        {
+            for(int i = 1; i <= lvl; ++i)
+            if(ap[i])
+                cout<<"| ";
+            else
+                cout<<"  ";
+            cout<<"\xC0\xC4"<<" and "<<fiu.size() - already_shown<<" more entries!\n";
+            ap[lvl] = 0;    //nu mai afisez linii pe randu asta
         }
     }
 
@@ -287,6 +303,9 @@ int main(int argc, char * argv[])
     //calea
     string path = "";
 
+    //max elements shown
+    uint32_t max_show = 5;
+
     if(argc < 2)
     {
         //obtinem cwd
@@ -303,9 +322,15 @@ int main(int argc, char * argv[])
         //aici avem cwd in path
     }
 
-    else    //avem argv[1]
+    else if(argc < 3)   //avem argv[1]
     {
         path = argv[1];
+    }
+
+    else
+    {
+        path = argv[1];
+        max_show = strtol(argv[3], NULL, 10);
     }
 
     //orice caz am fi ales putem sa incepem sa exploram
@@ -326,6 +351,6 @@ int main(int argc, char * argv[])
     ap[1] = 1;
 
     //afisam
-    root->print(1, 1, ap, 0);
+    root->print(1, 1, ap, 0, max_show);
     return 0;
 }

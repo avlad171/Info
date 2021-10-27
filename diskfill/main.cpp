@@ -2,7 +2,8 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
-#include <set>
+//#include <set>
+#include <algorithm>
 
 //posix
 #include <unistd.h>
@@ -90,19 +91,19 @@ public:
     }
 };
 
-struct cmp
-{
-    bool operator () (const node * l, const node * r) const
+//struct cmp
+//{
+    bool cmp (const node * l, const node * r)// const
     {
         if(l->get_size() == r->get_size())
             return l->get_name() < r->get_name();
-        return l->get_size() < r->get_size();
+        return l->get_size() > r->get_size();
     }
-};
+//};
 
 class folder_node : public node
 {
-    set <node *, cmp> fiu;
+    vector <node *> fiu;
 
 public:
     //ctor
@@ -122,13 +123,13 @@ public:
     void insert_new_folder(folder_node * f)
     {
         if(f != nullptr)
-            fiu.insert(f);
+            fiu.push_back(f);
     }
 
     void insert_new_file(file_node * f)
     {
         if(f != nullptr)
-            fiu.insert(f);
+            fiu.push_back(f);
     }
 
 
@@ -141,6 +142,7 @@ public:
             this->maxdepth = max(this->maxdepth, f->get_maxdepth());
         }
 
+        sort(this->fiu.begin(), this->fiu.end(), cmp);
         return this->sz;
     }
 

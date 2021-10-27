@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <set>
 
 //posix
 #include <unistd.h>
@@ -21,23 +22,28 @@ protected:
 
 public:
     //getter/setter
-    string get_name ()
+    string get_name () const
     {
         return this->name;
     }
 
-    uint64_t get_size()
+    uint64_t get_size() const
     {
         return this->sz;
     }
 
-    int get_maxdepth()
+    int get_maxdepth() const
     {
         return this->maxdepth;
     }
 
     virtual uint64_t process() = 0;
     virtual void print(int level, int last, vector<bool> & ap) = 0;
+
+    bool operator == (const node & rhs)
+    {
+        return this->name == rhs.name;
+    }
 
     //dtor
     virtual ~node() {};
@@ -84,9 +90,19 @@ public:
     }
 };
 
+struct cmp
+{
+    bool operator () (const node * l, const node * r) const
+    {
+        if(l->get_size() == r->get_size())
+            return l->get_name() < r->get_name();
+        return l->get_size() < r->get_size();
+    }
+};
+
 class folder_node : public node
 {
-    vector <node *> fiu;
+    set <node *, cmp> fiu;
 
 public:
     //ctor
@@ -106,13 +122,13 @@ public:
     void insert_new_folder(folder_node * f)
     {
         if(f != nullptr)
-            fiu.push_back(f);
+            fiu.insert(f);
     }
 
     void insert_new_file(file_node * f)
     {
         if(f != nullptr)
-            fiu.push_back(f);
+            fiu.insert(f);
     }
 
 
@@ -146,7 +162,7 @@ public:
 
         for(auto it = fiu.begin(); it != fiu.end(); ++it)
         {
-            if((it + 1) != fiu.end())
+            if(next(it, 1) != fiu.end())
             {
                 //afisez linii pe randu urmator
                 ap[lvl + 1] = 1;
